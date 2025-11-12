@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js AI Studio - Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #252547;
+            --accent-blue: #007acc;
+            --accent-purple: #8a2be2;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #888888;
+            --border-color: #333355;
+            --success: #00d4aa;
+            --warning: #ffaa00;
+            --error: #ff5555;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .dashboard {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .user-info {
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-plan {
+            font-size: 12px;
+            color: var(--success);
+            background: rgba(0, 212, 170, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .nav-section {
+            padding: 20px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-blue);
+        }
+
+        .generation-counter {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .counter-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .counter-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .counter-limit {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .workspace-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #005a9e;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* Editor Area */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .file-explorer {
+            width: 250px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .explorer-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .file-item {
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .file-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .file-item.active {
+            background: var(--accent-blue);
+        }
+
+        .editor-preview {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .code-editor {
+            flex: 1;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .editor-content {
+            flex: 1;
+            padding: 16px;
+        }
+
+        #codeInput {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+        }
+
+        .preview-container {
+            height: 300px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .preview-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        /* AI Panel */
+        .ai-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ai-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .ai-input-area {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        #aiInput {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px;
+            background: var(--accent-purple);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .generate-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* Auth Pages */
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+        }
+
+        .auth-box {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .auth-btn {
+            padding: 12px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .auth-btn:hover {
+            background: #005a9e;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-muted);
+        }
+
+        .auth-link a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="auth-container">
+        <div class="auth-box">
+            <div class="logo" style="justify-content: center; margin-bottom: 10px;">
+                <i class="fas fa-cube"></i>
+                <span>Three.js AI Studio</span>
+            </div>
+            <div class="auth-title">Welcome Back</div>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="auth-btn">Sign In</button>
+            </form>
+            <div class="auth-link">
+                Don't have an account? <a href="#" onclick="showRegister()">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Page -->
+    <div id="registerPage" class="auth-container" style="display: none;">
+        <div class="auth-box">
+            <div class="logo" style="justify-content: center; margin-bottom: 10px;">
+                <i class="fas fa-cube"></i>
+                <span>Three.js AI Studio</span>
+            </div>
+            <div class="auth-title">Create Account</div>
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" required>
+                </div>
+                <button type="submit" class="auth-btn">Create Account</button>
+            </form>
+            <div class="auth-link">
+                Already have an account? <a href="#" onclick="showLogin()">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>Three.js AI Studio</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <span class="user-plan">FREE PLAN</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Workspace</div>
+                <div class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>My Workspace</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-file-code"></i>
+                    <span>Projects</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-shapes"></i>
+                    <span>Templates</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Tools</div>
+                <div class="nav-item">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Optimizer</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </div>
+            </div>
+
+            <div class="generation-counter">
+                <div class="counter-label">Generations Today</div>
+                <div class="counter-value" id="generationCount">0/2</div>
+                <div class="counter-limit">Free plan: 2 generations per day</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="workspace-title">
+                    <h1>My Workspace</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="saveFile()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="btn btn-primary" onclick="runPreview()">
+                        <i class="fas fa-play"></i> Run Preview
+                    </button>
+                </div>
+            </div>
+
+            <div class="editor-area">
+                <!-- File Explorer -->
+                <div class="file-explorer">
+                    <div class="explorer-header">
+                        <h3>Files</h3>
+                        <button class="btn btn-secondary" onclick="createNewFile()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="file-list" id="fileList">
+                        <!-- Files will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Editor & Preview -->
+                <div class="editor-preview">
+                    <div class="code-editor">
+                        <div class="editor-header">
+                            <span id="currentFileName">Untitled.js</span>
+                            <div>
+                                <button class="btn btn-secondary" onclick="formatCode()">
+                                    <i class="fas fa-indent"></i> Format
+                                </button>
+                            </div>
+                        </div>
+                        <div class="editor-content">
+                            <textarea id="codeInput" placeholder="// Write your Three.js code here..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <span>Live Preview</span>
+                            <div>
+                                <button class="btn btn-secondary" onclick="refreshPreview()">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="preview-content" id="previewContent">
+                            <div style="text-align: center;">
+                                <i class="fas fa-cube" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                                <p>Click "Run Preview" to see your 3D scene</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Panel -->
+                <div class="ai-panel">
+                    <div class="ai-header">
+                        <h3>AI Assistant</h3>
+                    </div>
+                    <div class="ai-messages" id="aiMessages">
+                        <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">
+                            Ask me to generate Three.js code!
+                        </div>
+                    </div>
+                    <div class="ai-input-area">
+                        <textarea 
+                            id="aiInput" 
+                            placeholder="E.g., Create a rotating cube with textures..."
+                        ></textarea>
+                        <button class="generate-btn" id="generateBtn" onclick="generateCode()">
+                            <i class="fas fa-bolt"></i> Generate Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://your-worker.your-account.workers.dev';
+        let currentUser = null;
+        let currentToken = null;
+        let currentFileId = null;
+
+        // Auth functions
+        function showLogin() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('registerPage').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('registerPage').style.display = 'flex';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentUser = data.user;
+                    currentToken = data.token;
+                    localStorage.setItem('threeAI_token', data.token);
+                    localStorage.setItem('threeAI_user', JSON.stringify(data.user));
+                    showDashboard();
+                    loadWorkspace();
+                } else {
+                    alert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                alert('Login error: ' + error.message);
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Registration successful! Please login.');
+                    showLogin();
+                } else {
+                    alert(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                alert('Registration error: ' + error.message);
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('registerPage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'flex';
+        }
+
+        // Dashboard functions
+        async function loadWorkspace() {
+            try {
+                const [workspaceRes, generationsRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/workspace`, {
+                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                    }),
+                    fetch(`${API_BASE}/api/generate/remaining`, {
+                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                    })
+                ]);
+
+                const workspaceData = await workspaceRes.json();
+                const generationsData = await generationsRes.json();
+
+                if (workspaceRes.ok) {
+                    document.getElementById('userName').textContent = currentUser.name;
+                    document.getElementById('generationCount').textContent = 
+                        `${2 - generationsData.remaining}/2`;
+                    loadFiles(workspaceData.workspace.files);
+                }
+            } catch (error) {
+                console.error('Error loading workspace:', error);
+            }
+        }
+
+        async function loadFiles(files) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <i class="fas fa-file-code"></i>
+                    <span>${file.filename}</span>
+                `;
+                fileItem.onclick = () => loadFile(file.id, file.filename);
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        async function loadFile(fileId, filename) {
+            try {
+                const response = await fetch(`${API_BASE}/api/workspace/files/${fileId}`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+
+                if (response.ok) {
+                    const content = await response.text();
+                    document.getElementById('codeInput').value = content;
+                    document.getElementById('currentFileName').textContent = filename;
+                    currentFileId = fileId;
+                }
+            } catch (error) {
+                console.error('Error loading file:', error);
+            }
+        }
+
+        async function saveFile() {
+            const content = document.getElementById('codeInput').value;
+            const filename = document.getElementById('currentFileName').textContent;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/workspace/files`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename: filename,
+                        content: content
+                    })
+                });
+
+                if (response.ok) {
+                    alert('File saved successfully!');
+                    loadWorkspace(); // Refresh file list
+                }
+            } catch (error) {
+                alert('Error saving file: ' + error.message);
+            }
+        }
+
+        async function generateCode() {
+            const prompt = document.getElementById('aiInput').value;
+            if (!prompt.trim()) {
+                alert('Please enter a prompt for code generation');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        type: 'threejs-scene'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('codeInput').value = data.code;
+                    document.getElementById('currentFileName').textContent = data.filename;
+                    document.getElementById('aiInput').value = '';
+                    addAIMessage(`Generated code for: "${prompt}"`);
+                    
+                    // Update generation counter
+                    document.getElementById('generationCount').textContent = 
+                        `${2 - data.remaining}/2`;
+                } else {
+                    alert(data.error || 'Generation failed');
+                }
+            } catch (error) {
+                alert('Generation error: ' + error.message);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate Code';
+            }
+        }
+
+        function addAIMessage(message) {
+            const aiMessages = document.getElementById('aiMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.padding = '8px 12px';
+            messageDiv.style.background = 'var(--bg-tertiary)';
+            messageDiv.style.borderRadius = '6px';
+            messageDiv.style.marginBottom = '8px';
+            messageDiv.style.fontSize = '14px';
+            messageDiv.textContent = message;
+            aiMessages.appendChild(messageDiv);
+            aiMessages.scrollTop = aiMessages.scrollHeight;
+        }
+
+        function runPreview() {
+            const code = document.getElementById('codeInput').value;
+            const previewContent = document.getElementById('previewContent');
+            
+            // Clear previous preview
+            previewContent.innerHTML = '';
+            
+            // Create iframe for safe execution
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.srcdoc = code;
+            
+            previewContent.appendChild(iframe);
+        }
+
+        function refreshPreview() {
+            runPreview();
+        }
+
+        function createNewFile() {
+            const filename = prompt('Enter filename (e.g., scene.js):');
+            if (filename) {
+                document.getElementById('codeInput').value = '// New Three.js file\n';
+                document.getElementById('currentFileName').textContent = filename;
+                currentFileId = null;
+            }
+        }
+
+        function formatCode() {
+            // Basic code formatting - in production, use a proper formatter
+            const codeInput = document.getElementById('codeInput');
+            const code = codeInput.value;
+            // Simple indentation helper
+            codeInput.value = code.replace(/^\s+/gm, '    ');
+        }
+
+        // Check if user is already logged in
+        function checkAuth() {
+            const token = localStorage.getItem('threeAI_token');
+            const user = localStorage.getItem('threeAI_user');
+            
+            if (token && user) {
+                currentToken = token;
+                currentUser = JSON.parse(user);
+                showDashboard();
+                loadWorkspace();
+            } else {
+                showLogin();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        document.getElementById('registerForm').addEventListener('submit', handleRegister);
+
+        // Initialize app
+        checkAuth();
+    </script>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>
