@@ -867,11 +867,26 @@
         }
 
         function runPreview() {
-            const code = document.getElementById('codeInput').value;
+            let code = document.getElementById('codeInput').value;
             const previewContent = document.getElementById('previewContent');
             
             // Clear previous preview
             previewContent.innerHTML = '';
+
+            // If the code is just JS, wrap it in HTML with Three.js
+            if (!code.includes('<html')) {
+                code = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Three.js Preview</title>
+    <style>body { margin: 0; } canvas { display: block; }</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"><\/script>
+</head>
+<body>
+    <script>${code}<\/script>
+</body>
+</html>`;
+            }
             
             // Create iframe for safe execution
             const iframe = document.createElement('iframe');
