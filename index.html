@@ -873,55 +873,47 @@
             // Clear previous preview
             previewContent.innerHTML = '';
 
-            // Always build a full HTML document to ensure a consistent environment
-            const fullHtml = `
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Three.js Preview</title>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"><\/script>
-                    <style>
-                        body { margin: 0; padding: 0; overflow: hidden; }
-                        canvas { display: block; }
-                    </style>
-                </head>
-                <body>
-                    <script type="module">
-                        try {
-                            // Check if user code is already a full HTML document.
-                            // If so, we can't run it inside our script tag.
-                            // This is a simple check; a more robust one would parse the string.
-                            if (userCode.trim().toLowerCase().startsWith('<!doctype') || userCode.trim().toLowerCase().startsWith('<html')) {
-                                // If it's a full document, we must inject it differently,
-                                // but for now, let's just show an error message.
-                                // A better solution would be to replace the whole iframe srcdoc with userCode.
-                                // Let's try that.
-                            } else {
-                                ${userCode}
-                            }
-                        } catch (e) {
-                            console.error(e);
-                            // Optional: display error in the preview window
-                            document.body.innerHTML = \`<pre style="color: red;">${e.stack}<\/pre>\`;
-                        }
-                    <\/script>
-                </body>
-                </html>
-            `;
-
             const isFullHtml = userCode.trim().toLowerCase().startsWith('<!doctype') || userCode.trim().toLowerCase().startsWith('<html');
+
+            let finalCode;
+
+            if (isFullHtml) {
+                finalCode = userCode;
+            } else {
+                // If it's just JS, wrap it in a basic HTML structure with error handling
+                finalCode = `
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Three.js Preview</title>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"><\/script>
+                        <style>
+                            body { margin: 0; padding: 0; overflow: hidden; }
+                            canvas { display: block; }
+                        </style>
+                    </head>
+                    <body>
+                        <script>
+                            try {
+                                ${userCode}
+                            } catch(e) {
+                                console.error("Error in preview code:", e);
+                                document.body.innerHTML = '<div style="font-family: monospace; color: red;"><h3>Preview Error:</h3><pre>' + e.stack + '</pre></div>';
+                            }
+                        <\/script>
+                    </body>
+                    </html>
+                `;
+            }
 
             // Create iframe for safe execution
             const iframe = document.createElement('iframe');
             iframe.style.width = '100%';
             iframe.style.height = '100%';
             iframe.style.border = 'none';
-            
-            // If the user code is already a full HTML page, use it directly.
-            // Otherwise, use our generated wrapper.
-            iframe.srcdoc = isFullHtml ? userCode : fullHtml;
+            iframe.srcdoc = finalCode;
             
             previewContent.appendChild(iframe);
         }
