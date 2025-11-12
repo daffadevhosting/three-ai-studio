@@ -606,6 +606,9 @@
                         <div class="preview-header">
                             <span>Live Preview</span>
                             <div>
+                                <button id="fixBtn" class="btn" onclick="fixCodeWithAI()" style="display: none; background-color: var(--warning); color: black; border-color: var(--warning);">
+                                    <i class="fas fa-wrench"></i> Fix with AI
+                                </button>
                                 <button class="btn btn-secondary" onclick="refreshPreview()">
                                     <i class="fas fa-redo"></i>
                                 </button>
@@ -649,6 +652,7 @@
         let currentUser = null;
         let currentToken = null;
         let currentFileId = null;
+        let lastPreviewError = null;
 
         // Auth functions
         function showLogin() {
@@ -869,38 +873,36 @@
         function runPreview() {
             const userCode = document.getElementById('codeInput').value;
             const previewContent = document.getElementById('previewContent');
-            
-            // Clear previous preview
+            const fixBtn = document.getElementById('fixBtn');
+
+            // Reset state
             previewContent.innerHTML = '';
+            fixBtn.style.display = 'none';
+            lastPreviewError = null;
 
             const isFullHtml = userCode.trim().toLowerCase().startsWith('<!doctype') || userCode.trim().toLowerCase().startsWith('<html');
-
             let finalCode;
 
             if (isFullHtml) {
                 finalCode = userCode;
             } else {
-                // If it's just JS, wrap it in a basic HTML structure with error handling
                 finalCode = `
                     <!DOCTYPE html>
                     <html lang="en">
                     <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>Three.js Preview</title>
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"><\/script>
-                        <style>
-                            body { margin: 0; padding: 0; overflow: hidden; }
-                            canvas { display: block; }
-                        </style>
+                        <style> body { margin: 0; } </style>
                     </head>
                     <body>
                         <script>
+                            window.addEventListener('error', function(event) {
+                                window.parent.postMessage({ type: 'preview_error', error: { message: event.message, stack: event.error ? event.error.stack : 'No stack available' } }, '*');
+                            });
                             try {
                                 ${userCode}
                             } catch(e) {
-                                console.error("Error in preview code:", e);
-                                document.body.innerHTML = '<div style="font-family: monospace; color: red;"><h3>Preview Error:</h3><pre>' + e.stack + '</pre></div>';
+                                window.parent.postMessage({ type: 'preview_error', error: { message: e.message, stack: e.stack } }, '*');
                             }
                         <\/script>
                     </body>
@@ -908,15 +910,74 @@
                 `;
             }
 
-            // Create iframe for safe execution
             const iframe = document.createElement('iframe');
             iframe.style.width = '100%';
             iframe.style.height = '100%';
             iframe.style.border = 'none';
             iframe.srcdoc = finalCode;
-            
             previewContent.appendChild(iframe);
         }
+
+        async function fixCodeWithAI() {
+            if (!lastPreviewError) {
+                alert('No error to fix!');
+                return;
+            }
+
+            const userCode = document.getElementById('codeInput').value;
+            const errorStack = lastPreviewError.stack || lastPreviewError.message;
+
+            const fixBtn = document.getElementById('fixBtn');
+            fixBtn.disabled = true;
+            fixBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fixing...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/fix-code`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: userCode,
+                        error: errorStack
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('codeInput').value = data.fixedCode;
+                    alert('AI has attempted to fix the code. Please review and run the preview again.');
+                    lastPreviewError = null;
+                    fixBtn.style.display = 'none';
+                } else {
+                    alert(data.error || 'Failed to fix code.');
+                }
+            } catch (error) {
+                alert('Error communicating with AI: ' + error.message);
+            } finally {
+                fixBtn.disabled = false;
+                fixBtn.innerHTML = '<i class="fas fa-wrench"></i> Fix with AI';
+            }
+        }
+
+        window.addEventListener('message', function(event) {
+            // For security, you'd want a more specific origin check in production
+            if (!event.data || event.data.type !== 'preview_error') {
+                return;
+            }
+
+            const error = event.data.error;
+            console.error("Preview Error:", error);
+            lastPreviewError = error;
+            
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = '<div style="font-family: monospace; color: red; padding: 20px;"><h3>Preview Error:</h3><pre>' + (error.stack || error.message) + '</pre></div>';
+
+            const fixBtn = document.getElementById('fixBtn');
+            fixBtn.style.display = 'inline-block';
+        });
 
         function refreshPreview() {
             runPreview();
