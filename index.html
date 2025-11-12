@@ -86,7 +86,17 @@
                 <div class="p-2 border-top border-secondary"><textarea id="aiInput" class="form-control" placeholder="e.g., Create a rotating cube..." rows="3"></textarea><button class="btn btn-primary w-100 mt-2" id="generateBtn" onclick="generateCode()"><i class="fas fa-bolt"></i> Generate</button></div>
             </div>
         </main>
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mainSidebar" aria-labelledby="mainSidebarLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="mainSidebarLabel">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column"><div class="user-info p-3 mb-3 rounded" style="background-color: var(--bg-tertiary);"><div id="userName" class="fw-bold">Loading...</div><span class="badge bg-success-subtle text-success-emphasis rounded-pill">FREE PLAN</span></div><h6>Workspace</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light active" onclick="handleSidebarClick(event, 'My Workspace')"><i class="fas fa-home fa-fw me-2"></i>My Workspace</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Projects')"><i class="fas fa-file-code fa-fw me-2"></i>Projects</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Templates')"><i class="fas fa-shapes fa-fw me-2"></i>Templates</a></div><h6 class="mt-4">Tools</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'AI Assistant')"><i class="fas fa-robot fa-fw me-2"></i>AI Assistant</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Optimizer')"><i class="fas fa-bolt fa-fw me-2"></i>Optimizer</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Analytics')"><i class="fas fa-chart-line fa-fw me-2"></i>Analytics</a></div><div class="mt-auto p-3 rounded text-center" style="background-color: var(--bg-tertiary);"><div class="text-muted">Generations Today</div><div id="generationCount" class="fs-3 fw-bold">0/2</div></div></div></div>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mainSidebar" aria-labelledby="mainSidebarLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="mainSidebarLabel">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column"><div class="user-info p-3 mb-3 rounded" style="background-color: var(--bg-tertiary);"><div id="userName" class="fw-bold">Loading...</div><span class="badge bg-success-subtle text-success-emphasis rounded-pill">FREE PLAN</span></div><h6>Workspace</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light active" onclick="handleSidebarClick(event, 'My Workspace')"><i class="fas fa-home fa-fw me-2"></i>My Workspace</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Projects')"><i class="fas fa-file-code fa-fw me-2"></i>Projects</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Templates')"><i class="fas fa-shapes fa-fw me-2"></i>Templates</a></div><h6 class="mt-4">Tools</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'AI Assistant')"><i class="fas fa-robot fa-fw me-2"></i>AI Assistant</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Optimizer')"><i class="fas fa-bolt fa-fw me-2"></i>Optimizer</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Analytics')"><i class="fas fa-chart-line fa-fw me-2"></i>Analytics</a></div>                <div class="mt-auto p-3 rounded text-center" style="background-color: var(--bg-tertiary);">
+                    <div>Generations Today</div>
+                    <div id="generationCount" class="fs-3 fw-bold">0/2</div>
+                </div>
+                <div class="p-3">
+                    <button class="btn btn-danger w-100" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="offcanvas offcanvas-start" tabindex="-1" id="fileExplorer" aria-labelledby="fileExplorerLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="fileExplorerLabel">Files</h5><button class="btn btn-sm btn-primary" onclick="createNewFile()"><i class="fas fa-plus"></i> New</button></div><div class="offcanvas-body p-2" id="fileList"></div></div>
     </div>
 
@@ -301,6 +311,16 @@
                 fixBtn.disabled = false;
                 fixBtn.innerHTML = '<i class="fas fa-wrench"></i> Fix with AI';
             }
+        }
+
+        function logout() {
+            localStorage.removeItem('threeAI_token');
+            localStorage.removeItem('threeAI_user');
+            currentUser = null;
+            currentToken = null;
+            currentFileId = null;
+            lastPreviewError = null;
+            showLogin();
         }
 
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
