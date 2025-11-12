@@ -867,33 +867,61 @@
         }
 
         function runPreview() {
-            let code = document.getElementById('codeInput').value;
+            const userCode = document.getElementById('codeInput').value;
             const previewContent = document.getElementById('previewContent');
             
             // Clear previous preview
             previewContent.innerHTML = '';
 
-            // If the code is just JS, wrap it in HTML with Three.js
-            if (!code.includes('<html')) {
-                code = `<!DOCTYPE html>
-<html>
-<head>
-    <title>Three.js Preview</title>
-    <style>body { margin: 0; } canvas { display: block; }</style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"><\/script>
-</head>
-<body>
-    <script>${code}<\/script>
-</body>
-</html>`;
-            }
-            
+            // Always build a full HTML document to ensure a consistent environment
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Three.js Preview</title>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"><\/script>
+                    <style>
+                        body { margin: 0; padding: 0; overflow: hidden; }
+                        canvas { display: block; }
+                    </style>
+                </head>
+                <body>
+                    <script type="module">
+                        try {
+                            // Check if user code is already a full HTML document.
+                            // If so, we can't run it inside our script tag.
+                            // This is a simple check; a more robust one would parse the string.
+                            if (userCode.trim().toLowerCase().startsWith('<!doctype') || userCode.trim().toLowerCase().startsWith('<html')) {
+                                // If it's a full document, we must inject it differently,
+                                // but for now, let's just show an error message.
+                                // A better solution would be to replace the whole iframe srcdoc with userCode.
+                                // Let's try that.
+                            } else {
+                                ${userCode}
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            // Optional: display error in the preview window
+                            document.body.innerHTML = \`<pre style="color: red;">${e.stack}<\/pre>\`;
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            const isFullHtml = userCode.trim().toLowerCase().startsWith('<!doctype') || userCode.trim().toLowerCase().startsWith('<html');
+
             // Create iframe for safe execution
             const iframe = document.createElement('iframe');
             iframe.style.width = '100%';
             iframe.style.height = '100%';
             iframe.style.border = 'none';
-            iframe.srcdoc = code;
+            
+            // If the user code is already a full HTML page, use it directly.
+            // Otherwise, use our generated wrapper.
+            iframe.srcdoc = isFullHtml ? userCode : fullHtml;
             
             previewContent.appendChild(iframe);
         }
