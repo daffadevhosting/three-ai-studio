@@ -278,7 +278,7 @@
             if (!prompt.trim()) return;
             const generateBtn = document.getElementById('generateBtn');
             generateBtn.disabled = true;
-            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             try {
                 const response = await fetch(`${API_BASE}/api/generate`, { method: 'POST', headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, type: 'threejs-scene' }) });
                 const data = await response.json();
@@ -290,7 +290,7 @@
                 } else { alert(data.error || 'Generation failed'); }
             } catch (error) { alert('Generation error: ' + error.message); } finally {
                 generateBtn.disabled = false;
-                generateBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate';
+                generateBtn.innerHTML = '<i class="fas fa-bolt"></i>';
             }
         }
 
