@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Successful - Three.js AI Studio</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #0f0f23; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .container { 
+            text-align: center; 
+            padding: 40px; 
+        }
+        .success { 
+            color: #00d4aa; 
+            font-size: 48px; 
+            margin-bottom: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success">✓</div>
+        <h1>Payment Successful!</h1>
+        <p>Your tokens have been added to your account.</p>
+        <button onclick="window.close()">Close</button>
+    </div>
+    <script>
+        // Notify parent window if opened in popup
+        if (window.opener) {
+            window.opener.postMessage({ type: 'payment_completed' }, '*');
+            setTimeout(() => window.close(), 2000);
+        }
+    </script>
+</body>
+</html>
