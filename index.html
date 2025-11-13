@@ -20,11 +20,14 @@
         body { background-color: var(--bg-primary); color: var(--text-primary); }
         .btn-primary { background-color: var(--accent-blue); border-color: var(--accent-blue); }
         .btn-secondary { background-color: var(--bg-tertiary); border-color: var(--border-color); }
+        .send-btn {position: absolute;bottom: 18px;right: 18px;max-width: 40px;max-height: 40px;}
+        .relative-noborder {position: relative;border-top: none !important;}
         .offcanvas, .modal-content { background-color: var(--bg-secondary); color: var(--text-primary); }
         .main-header { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
         .main-layout { display: grid; grid-template-columns: 1fr 400px; gap: 1rem; height: calc(100vh - 58px); padding: 1rem; }
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {border-color:none !important;}.card-header-tabs .nav-link.active {border-bottom-color: none !important;}
         .main-panel, .ai-panel { background-color: var(--bg-secondary); border-radius: 0.5rem; overflow: hidden; display: flex; flex-direction: column; }
-        .panel-header { padding: 0.75rem 1rem; background-color: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
+        .panel-header { display: flex; align-items: center; height: 66px; padding: 0.75rem 1rem; background-color: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
         .panel-body { flex-grow: 1; overflow: auto; position: relative; }
         #codeInput, #previewContent iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; background-color: transparent; }
         #codeInput { font-family: 'SF Mono', 'Consolas', 'Menlo', monospace; color: var(--text-primary); padding: 1rem; resize: none; }
@@ -83,7 +86,7 @@
             <div class="ai-panel">
                 <div class="panel-header"><h6 class="m-0">AI Assistant</h6></div>
                 <div class="panel-body" id="aiMessages" style="padding: 1rem;"></div>
-                <div class="p-2 border-top border-secondary"><textarea id="aiInput" class="form-control" placeholder="e.g., Create a rotating cube..." rows="3"></textarea><button class="btn btn-primary w-100 mt-2" id="generateBtn" onclick="generateCode()"><i class="fas fa-bolt"></i> Generate</button></div>
+                <div class="relative-noborder p-2 border-top border-secondary"><textarea id="aiInput" class="form-control" placeholder="e.g., Create a rotating cube..." rows="3"></textarea><button class="btn btn-primary send-btn w-100 mt-2" id="generateBtn" onclick="generateCode()"><i class="fas fa-bolt"></i></button></div>
             </div>
         </main>
         <div class="offcanvas offcanvas-start" tabindex="-1" id="mainSidebar" aria-labelledby="mainSidebarLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="mainSidebarLabel">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column"><div class="user-info p-3 mb-3 rounded" style="background-color: var(--bg-tertiary);"><div id="userName" class="fw-bold">Loading...</div><span class="badge bg-success-subtle text-success-emphasis rounded-pill">FREE PLAN</span></div><h6>Workspace</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light active" onclick="handleSidebarClick(event, 'My Workspace')"><i class="fas fa-home fa-fw me-2"></i>My Workspace</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Projects')"><i class="fas fa-file-code fa-fw me-2"></i>Projects</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Templates')"><i class="fas fa-shapes fa-fw me-2"></i>Templates</a></div><h6 class="mt-4">Tools</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'AI Assistant')"><i class="fas fa-robot fa-fw me-2"></i>AI Assistant</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Optimizer')"><i class="fas fa-bolt fa-fw me-2"></i>Optimizer</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Analytics')"><i class="fas fa-chart-line fa-fw me-2"></i>Analytics</a></div>                <div class="mt-auto p-3 rounded text-center" style="background-color: var(--bg-tertiary);">
