@@ -143,10 +143,26 @@
             const name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
+
+            if (!name || !email || !password) {
+                alert('Please enter your name, email, and password.');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE}/api/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, name }) });
                 const data = await response.json();
-                if (response.ok) { alert('Registration successful! Please login.'); showLogin(); } else { alert(data.error || 'Registration failed'); }
+                if (response.ok) { alert('Registration successful! Please login.'); showLogin(); } else { 
+                    if (data.error === 'User with this email already exists') {
+                        alert('Registration failed: This email is already registered. Please try logging in or use a different email.');
+                    } else {
+                        alert(data.error || 'Registration failed'); 
+                    }
+                }
             } catch (error) { alert('Registration error: ' + error.message); }
         }
 
