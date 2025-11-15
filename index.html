@@ -122,6 +122,11 @@
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Please enter both email and password.');
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
                 const data = await response.json();
