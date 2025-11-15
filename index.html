@@ -335,6 +335,20 @@
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
         document.getElementById('registerForm').addEventListener('submit', handleRegister);
         checkAuth();
+
+        // Global error handler for better debugging
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error("Global Error Caught:", {
+                message: message,
+                source: source,
+                lineno: lineno,
+                colno: colno,
+                stack: error ? error.stack : 'No stack available'
+            });
+            // Optionally, send this error to a logging service
+            // alert('An unexpected error occurred. Please check the console for details.');
+            return true; // Prevent default error handling
+        };
     </script>
 </body>
 </html>
