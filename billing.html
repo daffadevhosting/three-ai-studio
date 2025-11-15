@@ -1122,7 +1122,7 @@
 
         // Check for payment success on page load
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === 'true') {
+        if (urlParams && urlParams.get('success') === 'true') {
             alert('Payment completed successfully! Your tokens have been added to your account.');
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
