@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - Three.js AI Studio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0E1117;
+            --bg-secondary: #161B22;
+            --bg-tertiary: #2D333B;
+            --accent-blue: #58A6FF;
+            --accent-purple: #58A6FF;
+            --accent-green: #58A6FF;
+            --accent-orange: #58A6FF;
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --text-muted: #8B949E;
+            --border-color: #2D333B;
+            --success: #28a745;
+            --warning: #ffc107;
+            --error: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-blue);
+        }
+
+        /* Main Layout */
+        .billing-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        /* Balance Sidebar */
+        .balance-sidebar {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            color: white;
+            text-align: center;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+
+        .balance-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .quick-stats {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: #00b894;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* Main Content */
+        .billing-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .content-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .content-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .content-body {
+            padding: 24px;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .pricing-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent-green);
+            transform: scale(1.05);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pricing-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .pricing-tokens {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 12px;
+        }
+
+        .pricing-price {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .pricing-savings {
+            color: var(--accent-green);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .pricing-description {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+            min-height: 60px;
+        }
+
+        .pricing-features {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .feature-item i {
+            color: var(--accent-green);
+        }
+
+        /* Custom Amount Section */
+        .custom-amount-section {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .custom-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .custom-description {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .amount-input-group {
+            display: flex;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+
+        .amount-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .amount-preview {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .preview-label {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .preview-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        /* Transaction History */
+        .transactions-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transactions-table th {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .transactions-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .transaction-amount.credit {
+            color: var(--accent-green);
+        }
+
+        .transaction-amount.debit {
+            color: var(--error);
+        }
+
+        .transaction-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent-green);
+        }
+
+        .status-pending {
+            background: rgba(255, 170, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status-failed {
+            background: rgba(255, 85, 85, 0.1);
+            color: var(--error);
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .payment-method:last-child {
+            margin-bottom: 0;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .payment-info {
+            flex: 1;
+        }
+
+        .payment-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .payment-description {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .billing-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .balance-sidebar {
+                position: static;
+                order: 2;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .amount-input-group {
+                flex-direction: column;
+            }
+            
+            .transactions-table {
+                font-size: 14px;
+            }
+            
+            .transactions-table th,
+            .transactions-table td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <a href="./" class="logo">
+                <i class="fas fa-cube"></i>
+                <span>Three.js AI Studio</span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="./" class="nav-link">
+                    <i class="fas fa-code"></i> Workspace
+                </a>
+                <a href="./profile" class="nav-link">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="./billing" class="nav-link active">
+                    <i class="fas fa-credit-card"></i> Billing
+                </a>
+            </nav>
+            
+            <div class="user-menu">
+                <img id="userAvatar" src="" alt="Avatar" class="avatar">
+                <span id="userName">Loading...</span>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="billing-layout">
+            <!-- Main Content -->
+            <div class="billing-content">
+                <div class="content-header">
+                    <h1>Billing & Token Management</h1>
+                    <p>Purchase tokens and manage your billing history</p>
+                </div>
+                
+                <div class="content-body">
+                    <!-- Token Packages -->
+                    <section class="pricing-section">
+                        <h2 class="section-title">Choose Your Token Package</h2>
+                        
+                        <div class="pricing-grid" id="pricingPlans">
+                            <!-- Pricing cards will be loaded here -->
+                        </div>
+
+                        <div style="text-align: center;">
+                            <p style="color: var(--text-muted); margin-bottom: 16px;">
+                                Need a custom amount or enterprise solution?
+                            </p>
+                            <button class="btn btn-secondary" onclick="showCustomAmountSection()">
+                                <i class="fas fa-cog"></i> Custom Token Amount
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Custom Amount Section -->
+                    <section class="custom-amount-section" id="customAmountSection" style="display: none;">
+                        <h3 class="custom-title">Custom Token Package</h3>
+                        <p class="custom-description">
+                            Get exactly the number of tokens you need. Perfect for specific project requirements.
+                        </p>
+                        
+                        <div class="amount-input-group">
+                            <input 
+                                type="number" 
+                                id="customTokenAmount" 
+                                class="amount-input" 
+                                placeholder="Enter token amount"
+                                min="100"
+                                max="1000000"
+                                value="5000"
+                            >
+                            <button class="btn btn-secondary" onclick="calculateCustomPrice()">
+                                Calculate
+                            </button>
+                        </div>
+
+                        <div class="amount-preview">
+                            <div class="preview-label">Estimated Cost</div>
+                            <div class="preview-value" id="customPrice">$10.00</div>
+                            <div class="preview-label" style="margin-top: 8px;">
+                                <i class="fas fa-info-circle"></i>
+                                $2 per 1,000 tokens
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="purchaseCustomTokens()">
+                            <i class="fas fa-shopping-cart"></i> Purchase Custom Package
+                        </button>
+                    </section>
+
+                    <!-- Payment Methods -->
+                    <section class="payment-methods">
+                        <h3 style="margin-bottom: 16px;">Supported Payment Methods</h3>
+                        <div class="payment-method">
+                            <div class="payment-icon" style="background: var(--accent-blue);">
+                                <i class="fab fa-paypal"></i>
+                            </div>
+                            <div class="payment-info">
+                                <div class="payment-name">PayPal</div>
+                                <div class="payment-description">Secure payments with PayPal</div>
+                            </div>
+                            <div class="payment-status status-completed">
+                                <i class="fas fa-check"></i> Available
+                            </div>
+                        </div>
+                        
+                        <div class="payment-method">
+                            <div class="payment-icon" style="background: var(--accent-purple);">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="payment-info">
+                                <div class="payment-name">Credit/Debit Card</div>
+                                <div class="payment-description">Visa, MasterCard, American Express</div>
+                            </div>
+                            <div class="payment-status status-pending">
+                                <i class="fas fa-clock"></i> Coming Soon
+                            </div>
+                        </div>
+                        
+                        <div class="payment-method">
+                            <div class="payment-icon" style="background: var(--accent-green);">
+                                <i class="fab fa-cc-stripe"></i>
+                            </div>
+                            <div class="payment-info">
+                                <div class="payment-name">Stripe</div>
+                                <div class="payment-description">Additional payment options</div>
+                            </div>
+                            <div class="payment-status status-pending">
+                                <i class="fas fa-clock"></i> Coming Soon
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Transaction History -->
+                    <section class="transactions-section">
+                        <div class="section-header">
+                            <h2>Transaction History</h2>
+                            <button class="btn btn-secondary" onclick="refreshTransactions()">
+                                <i class="fas fa-redo"></i> Refresh
+                            </button>
+                        </div>
+                        
+                        <div id="transactionsList">
+                            <div class="empty-state">
+                                <i class="fas fa-receipt"></i>
+                                <h3>No Transactions Yet</h3>
+                                <p>Your transaction history will appear here after your first purchase</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Balance Sidebar -->
+            <div class="balance-sidebar">
+                <div class="balance-card">
+                    <div class="balance-label">Available Tokens</div>
+                    <div class="balance-amount" id="tokenBalance">0</div>
+                    <div class="balance-subtitle">For AI Code Generation</div>
+                    <button class="btn btn-primary" onclick="showPricingModal()">
+                        <i class="fas fa-bolt"></i> Get More Tokens
+                    </button>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Today's Usage</span>
+                        <span class="stat-value" id="todayUsage">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">This Month</span>
+                        <span class="stat-value" id="monthlyUsage">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Generated</span>
+                        <span class="stat-value" id="totalGenerations">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg. Cost/Gen</span>
+                        <span class="stat-value" id="avgCost">10</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(0, 122, 204, 0.1); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 8px; color: var(--accent-blue);">
+                        <i class="fas fa-lightbulb"></i> Token Usage
+                    </h4>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                        • Code Generation: <strong>10 tokens</strong><br>
+                        • Code Optimization: <strong>5 tokens</strong><br>
+                        • File Analysis: <strong>3 tokens</strong><br>
+                        • Complex prompts may cost more
+                    </p>
+                </div>
+
+                <button class="btn btn-secondary" onclick="showUsageAnalytics()">
+                    <i class="fas fa-chart-bar"></i> View Detailed Analytics
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; color: white; font-size: 18px;">
+        <div style="text-align: center;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px;"></i>
+            <p>Processing payment...</p>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="common.js"></script>
+    <script>
+        const API_BASE = 'https://three-ai-studio.warpzone.workers.dev';
+        const auth = new Auth(API_BASE);
+        let currentBalance = 0;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            auth.redirectIfUnauthenticated();
+            
+            initializeBillingPage();
+        });
+
+        async function initializeBillingPage() {
+            const data = await loadUserProfile(API_BASE, auth.getToken());
+            if (data) {
+                document.getElementById('userName').textContent = data.user.name;
+                document.getElementById('userAvatar').src = data.user.avatar;
+                currentBalance = data.usage.currentBalance;
+                updateBalanceDisplay();
+            }
+
+            loadPricingPlans();
+            loadUsageStats();
+            loadTransactionHistory();
+        }
+
+        // Load pricing plans
+        async function loadPricingPlans() {
+            try {
+                const response = await fetch(`${API_BASE}/api/pricing`);
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPricingPlans(data.plans);
+                }
+            } catch (error) {
+                console.error('Error loading pricing plans:', error);
+            }
+        }
+
+        function displayPricingPlans(plans) {
+            const container = document.getElementById('pricingPlans');
+            
+            container.innerHTML = Object.entries(plans).map(([planId, plan]) => `
+                <div class="pricing-card ${planId === 'pro' ? 'featured' : ''}">
+                    ${planId === 'pro' ? '<div class="pricing-badge">MOST POPULAR</div>' : ''}
+                    <div class="pricing-name">${plan.name}</div>
+                    <div class="pricing-tokens">${plan.tokens === 0 ? 'Unlimited' : plan.tokens.toLocaleString()} Tokens</div>
+                    <div class="pricing-price">$${plan.price}</div>
+                    <div class="pricing-savings">${plan.savings} Better Value</div>
+                    <div class="pricing-description">${plan.description}</div>
+                    
+                    <div class="pricing-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>${plan.tokens === 0 ? 'Unlimited' : plan.tokens.toLocaleString()} AI Generations</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Priority Processing</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Email Support</span>
+                        </div>
+                        ${planId === 'power' || planId === 'custom' ? `
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Advanced Features</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="purchaseTokens('${planId}')" style="width: 100%;">
+                        <i class="fas fa-shopping-cart"></i> Get ${plan.name}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Load usage statistics
+        async function loadUsageStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/billing/usage`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    document.getElementById('todayUsage').textContent = data.todayUsage.toLocaleString();
+                    document.getElementById('monthlyUsage').textContent = data.monthlyUsage.toLocaleString();
+                    document.getElementById('totalGenerations').textContent = data.totalTransactions.toLocaleString();
+                    
+                    // Calculate average cost
+                    const avgCost = data.totalTransactions > 0 ? 
+                        Math.round(data.totalSpent / data.totalTransactions) : 10;
+                    document.getElementById('avgCost').textContent = avgCost;
+                }
+            } catch (error) {
+                console.error('Error loading usage stats:', error);
+            }
+        }
+
+        // Load transaction history
+        async function loadTransactionHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/billing/transactions`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayTransactions(data.transactions);
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+            }
+        }
+
+        function displayTransactions(transactions) {
+            const container = document.getElementById('transactionsList');
+            
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <h3>No Transactions Yet</h3>
+                        <p>Your transaction history will appear here after your first purchase</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Tokens</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${transactions.map(transaction => `
+                            <tr>
+                                <td>${new Date(transaction.timestamp).toLocaleDateString()}</td>
+                                <td>
+                                    <div style="font-weight: 500;">${transaction.type === 'credit' ? 'Token Purchase' : 'AI Generation'}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">
+                                        ${transaction.plan ? `${transaction.plan} Package` : 'Custom Amount'}
+                                    </div>
+                                </td>
+                                <td class="transaction-amount ${transaction.type}">
+                                    ${transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                                </td>
+                                <td>
+                                    ${transaction.paymentDetails ? `$${transaction.paymentDetails.amount}` : '—'}
+                                </td>
+                                <td>
+                                    <span class="transaction-status status-completed">
+                                        <i class="fas fa-check"></i> Completed
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Purchase functions
+        async function purchaseTokens(plan) {
+            showLoading(true);
+
+            try {
+                const returnUrl = `${window.location.origin}/three-ai-studio/payment-success.html`;
+                const cancelUrl = `${window.location.origin}/three-ai-studio/payment-cancel.html`;
+
+                const response = await fetch(`${API_BASE}/api/payment/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plan,
+                        returnUrl,
+                        cancelUrl
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Store session ID and redirect to PayPal
+                    localStorage.setItem('paymentSessionId', data.sessionId);
+                    window.location.href = data.approvalUrl;
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Payment failed');
+                }
+            } catch (error) {
+                console.error('Error purchasing tokens:', error);
+                alert('Payment Error: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Custom amount functions
+        function showCustomAmountSection() {
+            document.getElementById('customAmountSection').style.display = 'block';
+            document.getElementById('customTokenAmount').focus();
+            calculateCustomPrice();
+        }
+
+        function calculateCustomPrice() {
+            const amount = parseInt(document.getElementById('customTokenAmount').value) || 0;
+            const price = (amount / 1000) * 2;
+            document.getElementById('customPrice').textContent = `$${Math.max(1, price).toFixed(2)}`;
+        }
+
+        async function purchaseCustomTokens() {
+            const amount = parseInt(document.getElementById('customTokenAmount').value) || 0;
+            
+            if (amount < 100) {
+                alert('Minimum purchase is 100 tokens');
+                return;
+            }
+
+            if (amount > 1000000) {
+                alert('Maximum purchase is 1,000,000 tokens');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const returnUrl = `${window.location.origin}/three-ai-studio/payment-success.html`;
+                const cancelUrl = `${window.location.origin}/three-ai-studio/payment-cancel.html`;
+
+                const response = await fetch(`${API_BASE}/api/payment/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plan: 'custom',
+                        customAmount: amount,
+                        returnUrl,
+                        cancelUrl
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    localStorage.setItem('paymentSessionId', data.sessionId);
+                    window.location.href = data.approvalUrl;
+                } else {
+                    throw new Error('Failed to create custom payment');
+                }
+            } catch (error) {
+                console.error('Error purchasing custom tokens:', error);
+                alert('Payment Error: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Utility functions
+        function updateBalanceDisplay() {
+            document.getElementById('tokenBalance').textContent = currentBalance.toLocaleString();
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function refreshTransactions() {
+            loadTransactionHistory();
+            loadUsageStats();
+        }
+
+        function showUsageAnalytics() {
+            alert('Detailed usage analytics will open in a new window. This feature is coming soon!');
+        }
+
+        function showPricingModal() {
+            // Scroll to pricing section
+            document.querySelector('.pricing-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Listen for payment completion messages
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'payment_completed') {
+                // Reload data to reflect new balance
+                initializeBillingPage();
+                alert('Payment completed! Your tokens have been added.');
+            }
+        });
+
+        // Check for payment success on page load
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams && urlParams.get('success') === 'true') {
+            alert('Payment completed successfully! Your tokens have been added to your account.');
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    </script>
+</body>
+</html>

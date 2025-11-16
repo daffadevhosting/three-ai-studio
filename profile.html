@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Three.js AI Studio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0E1117;
+            --bg-secondary: #161B22;
+            --bg-tertiary: #2D333B;
+            --accent-blue: #58A6FF;
+            --accent-purple: #58A6FF;
+            --accent-green: #58A6FF;
+            --accent-orange: #58A6FF;
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --text-muted: #8B949E;
+            --border-color: #2D333B;
+            --success: #28a745;
+            --warning: #ffc107;
+            --error: #dc3545;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-blue);
+        }
+
+        /* Main Layout */
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar */
+        .profile-sidebar {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            height: fit-content;
+        }
+
+        .user-card {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-blue);
+            margin: 0 auto 16px;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .user-email {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .user-plan {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .sidebar-nav-item:hover, .sidebar-nav-item.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .sidebar-nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .profile-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .content-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .content-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .content-body {
+            padding: 24px;
+        }
+
+        /* Token Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .balance-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: #00b894;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* API Keys Table */
+        .api-keys-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .api-keys-table th,
+        .api-keys-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-keys-table th {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .api-keys-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .key-name {
+            font-weight: 500;
+        }
+
+        .key-prefix {
+            font-family: 'Consolas', monospace;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .key-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent-green);
+        }
+
+        .status-revoked {
+            background: rgba(255, 85, 85, 0.1);
+            color: var(--error);
+        }
+
+        .last-used {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pricing-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent-green);
+            position: relative;
+            transform: scale(1.05);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pricing-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .pricing-tokens {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 8px;
+        }
+
+        .pricing-price {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .pricing-savings {
+            color: var(--accent-green);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .pricing-description {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+            min-height: 40px;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+            }
+        }
+
+        /* Global Alert Styles */
+        #globalAlertContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2000;
+            width: 100%;
+            max-width: 400px;
+        }
+        .alert-custom {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .alert-custom.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .alert-custom.hide {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .alert-custom.success {
+            background-color: var(--success-color);
+        }
+        .alert-custom.error {
+            background-color: var(--error-color);
+        }
+        .alert-custom.warning {
+            background-color: var(--warning-color);
+            color: #333; /* Darker text for warning */
+        }
+        .alert-custom .close-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="globalAlertContainer"></div>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <a href="./" class="logo">
+                <i class="fas fa-cube"></i>
+                <span>Three.js AI Studio</span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="./" class="nav-link">
+                    <i class="fas fa-code"></i> Workspace
+                </a>
+                <a href="./profile" class="nav-link active">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="./billing" class="nav-link">
+                    <i class="fas fa-credit-card"></i> Billing
+                </a>
+            </nav>
+            
+            <div class="user-menu">
+                <img id="userAvatar" src="" alt="Avatar" class="avatar">
+                <span id="userName">Loading...</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="profile-layout">
+            <!-- Sidebar -->
+            <div class="profile-sidebar">
+                <div class="user-card">
+                    <img id="sidebarAvatar" src="" alt="Avatar" class="user-avatar">
+                    <div class="user-name" id="sidebarName">Loading...</div>
+                    <div class="user-email" id="sidebarEmail">loading@example.com</div>
+                    <div class="user-plan">FREE PLAN</div>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <a href="#overview" class="sidebar-nav-item active" onclick="showSection('overview')">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Overview</span>
+                    </a>
+                    <a href="#api-keys" class="sidebar-nav-item" onclick="showSection('api-keys')">
+                        <i class="fas fa-key"></i>
+                        <span>API Keys</span>
+                    </a>
+                    <a href="#billing" class="sidebar-nav-item" onclick="showSection('billing')">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Billing & Tokens</span>
+                    </a>
+                    <a href="#settings" class="sidebar-nav-item" onclick="showSection('settings')">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#my-files" class="sidebar-nav-item" onclick="showSection('my-files')">
+                        <i class="fas fa-file-code"></i>
+                        <span>My Files</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Content -->
+            <div class="profile-content">
+                <!-- Overview Section -->
+                <div id="overview-section" class="content-section">
+                    <div class="content-header">
+                        <h1>Account Overview</h1>
+                        <p>Manage your account settings and view usage statistics</p>
+                    </div>
+                    
+                    <div class="content-body">
+                        <!-- Token Balance -->
+                        <div class="balance-card">
+                            <div class="balance-label">Available Tokens</div>
+                            <div class="balance-amount" id="tokenBalance">0</div>
+                            <div class="balance-actions">
+                                <button class="btn btn-primary" onclick="showSection('billing')">
+                                    <i class="fas fa-plus"></i> Buy More Tokens
+                                </button>
+                                <button class="btn btn-secondary" onclick="showUsageStats()">
+                                    <i class="fas fa-chart-bar"></i> Usage Analytics
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Today's Usage</div>
+                                <div class="stat-value" id="todayUsage">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Monthly Usage</div>
+                                <div class="stat-value" id="monthlyUsage">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Total Generations</div>
+                                <div class="stat-value" id="totalGenerations">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">API Keys</div>
+                                <div class="stat-value" id="apiKeyCount">0</div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h2 class="section-title">Recent Activity</h2>
+                            </div>
+                            <div id="recentActivity">
+                                <div class="empty-state">
+                                    <i class="fas fa-history"></i>
+                                    <p>No recent activity</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Keys Section -->
+                <div id="api-keys-section" class="content-section" style="display: none;">
+                    <div class="content-header">
+                        <h1>API Keys</h1>
+                        <p>Manage your API keys for programmatic access</p>
+                    </div>
+                    
+                    <div class="content-body">
+                        <div class="section">
+                            <div class="section-header">
+                                <h2 class="section-title">Your API Keys</h2>
+                                <div class="section-actions">
+                                    <button class="btn btn-primary btn-small" onclick="showGenerateKeyModal()">
+                                        <i class="fas fa-plus"></i> Generate New Key
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="apiKeysList">
+                                <div class="empty-state">
+                                    <i class="fas fa-key"></i>
+                                    <p>No API keys generated yet</p>
+                                    <button class="btn btn-primary" onclick="showGenerateKeyModal()">
+                                        Generate Your First Key
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Section -->
+                <div id="billing-section" class="content-section" style="display: none;">
+                    <div class="content-header">
+                        <h1>Billing & Tokens</h1>
+                        <p>Purchase tokens and manage your billing information</p>
+                    </div>
+                    
+                    <div class="content-body">
+                        <!-- Current Balance -->
+                        <div class="section">
+                            <h2 class="section-title">Current Balance</h2>
+                            <div class="balance-card">
+                                <div class="balance-label">Available Tokens</div>
+                                <div class="balance-amount" id="billingTokenBalance">0</div>
+                                <div class="balance-actions">
+                                    <button class="btn btn-primary" onclick="showPricingModal()">
+                                        <i class="fas fa-shopping-cart"></i> Purchase Tokens
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Plans -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h2 class="section-title">Token Packages</h2>
+                            </div>
+                            
+                            <div class="pricing-grid" id="pricingPlans">
+                                <!-- Pricing cards will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Transaction History -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h2 class="section-title">Transaction History</h2>
+                            </div>
+                            <div id="transactionHistory">
+                                <div class="empty-state">
+                                    <i class="fas fa-receipt"></i>
+                                    <p>No transactions yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="settings-section" class="content-section" style="display: none;">
+                    <div class="content-header">
+                        <h1>Account Settings</h1>
+                        <p>Update your profile information and preferences</p>
+                    </div>
+                    
+                    <div class="content-body">
+                        <div class="section">
+                            <h2 class="section-title">Profile Information</h2>
+                            <form id="profileForm">
+                                <div class="form-group">
+                                    <label class="form-label">Avatar</label>
+                                    <div style="display: flex; align-items: center; gap: 16px;">
+                                        <img id="settingsAvatar" src="" alt="Avatar" class="avatar" style="width: 60px; height: 60px;">
+                                        <button type="button" class="btn btn-secondary" onclick="changeAvatar()">
+                                            <i class="fas fa-edit"></i> Change Avatar
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" id="profileName" class="form-input" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" id="profileEmail" class="form-input" disabled>
+                                    <div class="form-help">Email cannot be changed</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="section">
+                            <h2 class="section-title">Danger Zone</h2>
+                            <div style="background: rgba(255, 85, 85, 0.1); padding: 20px; border-radius: 8px; border: 1px solid var(--error);">
+                                <h3 style="color: var(--error); margin-bottom: 12px;">Delete Account</h3>
+                                <p style="color: var(--text-muted); margin-bottom: 16px;">
+                                    Permanently delete your account and all associated data. This action cannot be undone.
+                                </p>
+                                <button class="btn" style="background: var(--error); color: white;" onclick="showDeleteAccountModal()">
+                                    <i class="fas fa-trash"></i> Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Files Section -->
+                <div id="my-files-section" class="content-section" style="display: none;">
+                    <div class="content-header">
+                        <h1>My Files</h1>
+                        <p>Manage your generated and saved files</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="section">
+                            <div class="section-header">
+                                <h2 class="section-title">Your Files</h2>
+                            </div>
+                            <div id="fileList">
+                                <div class="empty-state">
+                                    <i class="fas fa-file-code"></i>
+                                    <p>No files saved yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate API Key Modal -->
+    <div class="modal" id="generateKeyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Generate New API Key</h3>
+                <button class="modal-close" onclick="closeGenerateKeyModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="generateKeyForm">
+                    <div class="form-group">
+                        <label class="form-label">Key Name</label>
+                        <input type="text" id="keyName" class="form-input" placeholder="e.g., Production Key" required>
+                        <div class="form-help">Give your key a descriptive name</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeGenerateKeyModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="generateAPIKey()">Generate Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Key Generated Modal -->
+    <div class="modal" id="keyGeneratedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">API Key Generated</h3>
+                <button class="modal-close" onclick="closeKeyGeneratedModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Your New API Key</label>
+                    <div style="background: var(--bg-primary); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <code id="newApiKey" style="font-family: 'Consolas', monospace; word-break: break-all;"></code>
+                    </div>
+                    <div class="form-help" style="color: var(--warning);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Save this key now! You won't be able to see it again.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeKeyGeneratedModal()">I've Saved It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Modal -->
+    <div class="modal" id="pricingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Purchase Tokens</h3>
+                <button class="modal-close" onclick="closePricingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pricing-grid">
+                    <div class="pricing-card" onclick="purchaseTokens('starter')">
+                        <div class="pricing-name">Starter</div>
+                        <div class="pricing-tokens">1,000 Tokens</div>
+                        <div class="pricing-price">$2</div>
+                        <div class="pricing-savings">+230% value</div>
+                        <div class="pricing-description">Perfect for testing and experimentation</div>
+                        <button class="btn btn-primary">Select Plan</button>
+                    </div>
+                    
+                    <div class="pricing-card featured" onclick="purchaseTokens('pro')">
+                        <div class="pricing-badge">MOST POPULAR</div>
+                        <div class="pricing-name">Pro</div>
+                        <div class="pricing-tokens">10,000 Tokens</div>
+                        <div class="pricing-price">$12</div>
+                        <div class="pricing-savings">+100% value</div>
+                        <div class="pricing-description">Great for regular development work</div>
+                        <button class="btn btn-primary">Select Plan</button>
+                    </div>
+                    
+                    <div class="pricing-card" onclick="purchaseTokens('power')">
+                        <div class="pricing-name">Power</div>
+                        <div class="pricing-tokens">50,000 Tokens</div>
+                        <div class="pricing-price">$50</div>
+                        <div class="pricing-savings">+67% value</div>
+                        <div class="pricing-description">Heavy users & small teams</div>
+                        <button class="btn btn-primary">Select Plan</button>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: var(--text-muted);">or</p>
+                    <button class="btn btn-secondary" onclick="showCustomAmountModal()">
+                        Custom Amount
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script type="module" src="./common/alert.js"></script>
+    <script type="module">
+      import { showAlert } from './common/alert.js';
+      window.showAlert = showAlert; // Make showAlert globally accessible
+    </script>
+    <script src="common.js"></script>
+    <script>
+        const API_BASE = 'https://three-ai-studio.warpzone.workers.dev';
+        const auth = new Auth(API_BASE);
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            auth.redirectIfUnauthenticated();
+            
+            initializeProfilePage();
+        });
+
+        async function initializeProfilePage() {
+            const data = await loadUserProfile(API_BASE, auth.getToken());
+            if (data) {
+                // Update UI
+                document.getElementById('userName').textContent = data.user.name;
+                document.getElementById('sidebarName').textContent = data.user.name;
+                document.getElementById('sidebarEmail').textContent = data.user.email;
+                document.getElementById('userAvatar').src = data.user.avatar;
+                document.getElementById('sidebarAvatar').src = data.user.avatar;
+                document.getElementById('settingsAvatar').src = data.user.avatar;
+                document.getElementById('profileName').value = data.user.name;
+                document.getElementById('profileEmail').value = data.user.email;
+                
+                document.getElementById('tokenBalance').textContent = data.usage.currentBalance.toLocaleString();
+                document.getElementById('billingTokenBalance').textContent = data.usage.currentBalance.toLocaleString();
+            } else {
+                showAlert('error', 'Failed to load profile data');
+            }
+
+            loadUsageStats();
+            loadAPIKeys();
+            loadPricingPlans();
+            loadTransactionHistory();
+            loadFiles(); // Load files on page initialization
+        }
+
+        // Navigation
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(`${section}-section`).style.display = 'block';
+            document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
+
+            // Load files if "My Files" section is selected
+            if (section === 'my-files') {
+                loadFiles();
+            }
+        }
+
+        // Load usage statistics
+        async function loadUsageStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/billing/usage`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    document.getElementById('todayUsage').textContent = data.todayUsage.toLocaleString();
+                    document.getElementById('monthlyUsage').textContent = data.monthlyUsage.toLocaleString();
+                    document.getElementById('totalGenerations').textContent = data.totalTransactions.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Error loading usage stats:', error);
+                showAlert('error', 'Error loading usage stats: ' + error.message);
+            }
+        }
+
+        // API Keys Management
+        async function loadAPIKeys() {
+            try {
+                const response = await fetch(`${API_BASE}/api/apikeys`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayAPIKeys(data.keys);
+                }
+            } catch (error) {
+                console.error('Error loading API keys:', error);
+                showAlert('error', 'Error loading API keys: ' + error.message);
+            }
+        }
+
+        function displayAPIKeys(keys) {
+            const container = document.getElementById('apiKeysList');
+            document.getElementById('apiKeyCount').textContent = keys.length;
+            
+            if (keys.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-key"></i>
+                        <p>No API keys generated yet</p>
+                        <button class="btn btn-primary" onclick="showGenerateKeyModal()">
+                            Generate Your First Key
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="api-keys-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Key</th>
+                            <th>Status</th>
+                            <th>Last Used</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${keys.map(key => `
+                            <tr>
+                                <td class="key-name">${key.name}</td>
+                                <td class="key-prefix">${key.prefix}</td>
+                                <td>
+                                    <span class="key-status ${key.isActive ? 'status-active' : 'status-revoked'}">
+                                        <i class="fas fa-${key.isActive ? 'check' : 'ban'}"></i>
+                                        ${key.isActive ? 'Active' : 'Revoked'}
+                                    </span>
+                                </td>
+                                <td class="last-used">
+                                    ${key.lastUsed ? new Date(key.lastUsed).toLocaleDateString() : 'Never'}
+                                </td>
+                                <td>
+                                    ${key.isActive ? `
+                                        <button class="btn btn-secondary btn-small" onclick="revokeAPIKey('${key.id}')">
+                                            <i class="fas fa-ban"></i> Revoke
+                                        </button>
+                                    ` : '—'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function showGenerateKeyModal() {
+            document.getElementById('generateKeyModal').classList.add('show');
+            document.getElementById('keyName').value = '';
+        }
+
+        function closeGenerateKeyModal() {
+            document.getElementById('generateKeyModal').classList.remove('show');
+        }
+
+        async function generateAPIKey() {
+            const name = document.getElementById('keyName').value.trim();
+            if (!name) {
+                showAlert('warning', 'Please enter a key name');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/apikeys`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Show the new key
+                    document.getElementById('newApiKey').textContent = data.apiKey.key;
+                    closeGenerateKeyModal();
+                    document.getElementById('keyGeneratedModal').classList.add('show');
+                    
+                    // Reload keys list
+                    loadAPIKeys();
+                    showAlert('success', 'API Key generated successfully!');
+                } else {
+                    showAlert('error', 'Failed to generate key');
+                }
+            } catch (error) {
+                console.error('Error generating API key:', error);
+                showAlert('error', 'Failed to generate API key: ' + error.message);
+            }
+        }
+
+        function closeKeyGeneratedModal() {
+            document.getElementById('keyGeneratedModal').classList.remove('show');
+        }
+
+        async function revokeAPIKey(keyId) {
+            if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/apikeys/${keyId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    loadAPIKeys(); // Reload the list
+                    showAlert('success', 'API Key revoked successfully.');
+                } else {
+                    showAlert('error', 'Failed to revoke key');
+                }
+            } catch (error) {
+                console.error('Error revoking API key:', error);
+                showAlert('error', 'Failed to revoke API key: ' + error.message);
+            }
+        }
+
+        // Billing & Tokens
+        async function loadPricingPlans() {
+            try {
+                const response = await fetch(`${API_BASE}/api/pricing`);
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPricingPlans(data.plans);
+                }
+            } catch (error) {
+                console.error('Error loading pricing plans:', error);
+                showAlert('error', 'Error loading pricing plans: ' + error.message);
+            }
+        }
+
+        function displayPricingPlans(plans) {
+            const container = document.getElementById('pricingPlans');
+            
+            container.innerHTML = Object.entries(plans).map(([planId, plan]) => `
+                <div class="pricing-card ${planId === 'pro' ? 'featured' : ''}" onclick="purchaseTokens('${planId}')">
+                    ${planId === 'pro' ? '<div class="pricing-badge">MOST POPULAR</div>' : ''}
+                    <div class="pricing-name">${plan.name}</div>
+                    <div class="pricing-tokens">${plan.tokens === 0 ? 'Unlimited' : plan.tokens.toLocaleString()} Tokens</div>
+                    <div class="pricing-price">$${plan.price}</div>
+                    <div class="pricing-savings">${plan.savings}</div>
+                    <div class="pricing-description">${plan.description}</div>
+                    <button class="btn btn-primary">Select Plan</button>
+                </div>
+            `).join('');
+        }
+
+        function showPricingModal() {
+            document.getElementById('pricingModal').classList.add('show');
+        }
+
+        function closePricingModal() {
+            document.getElementById('pricingModal').classList.remove('show');
+        }
+
+        async function purchaseTokens(plan) {
+            try {
+                const returnUrl = `${window.location.origin}/three-ai-studio/payment-success.html`;
+                const cancelUrl = `${window.location.origin}/three-ai-studio/payment-cancel.html`;
+                
+                const response = await fetch(`${API_BASE}/api/payment/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plan,
+                        returnUrl,
+                        cancelUrl
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Store session ID and redirect to PayPal
+                    localStorage.setItem('paymentSessionId', data.sessionId);
+                    window.location.href = data.approvalUrl;
+                    
+                    closePricingModal();
+                } else {
+                    showAlert('error', 'Failed to create payment');
+                }
+            } catch (error) {
+                console.error('Error purchasing tokens:', error);
+                showAlert('error', 'Failed to initiate payment: ' + error.message);
+            }
+        }
+
+        // Transaction History
+        async function loadTransactionHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/billing/transactions`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayTransactionHistory(data.transactions);
+                }
+            } catch (error) {
+                console.error('Error loading transaction history:', error);
+                showAlert('error', 'Error loading transaction history: ' + error.message);
+            }
+        }
+
+        function displayTransactionHistory(transactions) {
+            const container = document.getElementById('transactionHistory');
+            
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>No transactions yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="api-keys-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${transactions.map(transaction => `
+                            <tr>
+                                <td>${new Date(transaction.timestamp).toLocaleDateString()}</td>
+                                <td>
+                                    ${transaction.type === 'credit' ? 'Token Purchase' : 'AI Generation'}
+                                    ${transaction.plan ? `- ${transaction.plan}` : ''}
+                                </td>
+                                <td style="color: ${transaction.type === 'credit' ? 'var(--accent-green)' : 'var(--error)'};">
+                                    ${transaction.type === 'credit' ? '+' : '-'}${transaction.amount}
+                                </td>
+                                <td>
+                                    <span class="key-status ${transaction.type === 'credit' ? 'status-active' : 'status-revoked'}">
+                                        ${transaction.type === 'credit' ? 'Credit' : 'Debit'}
+                                    </span>
+                                </td>
+                                <td>${transaction.balanceAfter}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Profile Settings
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('profileName').value.trim();
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                if (response.ok) {
+                    showAlert('success', 'Profile updated successfully');
+                    const data = await loadUserProfile(API_BASE, auth.getToken());
+                    if(data) {
+                        document.getElementById('userName').textContent = data.user.name;
+                        document.getElementById('sidebarName').textContent = data.user.name;
+                    }
+                } else {
+                    showAlert('error', 'Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showAlert('error', 'Failed to update profile: ' + error.message);
+            }
+        });
+
+        async function changeAvatar() {
+            const newAvatar = prompt('Enter avatar URL:');
+            if (newAvatar) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/profile`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${auth.getToken()}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ avatar: newAvatar })
+                    });
+
+                    if (response.ok) {
+                        showAlert('success', 'Avatar updated successfully');
+                        // Reload profile data to update all avatar displays
+                        initializeProfilePage(); 
+                    } else {
+                        showAlert('error', 'Failed to update avatar');
+                    }
+                } catch (error) {
+                    console.error('Error updating avatar:', error);
+                    showAlert('error', 'Failed to update avatar: ' + error.message);
+                }
+            }
+        }
+
+        // Utility Functions
+        function showUsageStats() {
+            showAlert('info', 'Detailed usage analytics coming soon!');
+        }
+
+        function showCustomAmountModal() {
+            const amount = prompt('Enter custom token amount:');
+            if (amount && !isNaN(amount) && amount > 0) {
+                purchaseTokens('custom', parseInt(amount));
+            } else if (amount) {
+                showAlert('warning', 'Invalid amount entered for custom tokens.');
+            } else {
+                showAlert('info', 'Custom token purchase cancelled.');
+            }
+        }
+
+        function showDeleteAccountModal() {
+            if (confirm('Are you absolutely sure? This will permanently delete your account and all data.')) {
+                if (confirm('This action cannot be undone. Type "DELETE" to confirm:')) {
+                    showAlert('info', 'Account deletion would be processed here. In production, this would make an API call.');
+                } else {
+                    showAlert('info', 'Account deletion cancelled.');
+                }
+            } else {
+                showAlert('info', 'Account deletion cancelled.');
+            }
+        }
+
+        // File Management
+        async function loadFiles() {
+            try {
+                const response = await fetch(`${API_BASE}/api/workspace/files`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayFiles(data.files);
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+                showAlert('error', 'Error loading files: ' + error.message);
+            }
+        }
+
+        function displayFiles(files) {
+            const container = document.getElementById('fileList');
+            
+            if (files.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-code"></i>
+                        <p>No files saved yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="api-keys-table">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${files.map(file => `
+                            <tr>
+                                <td>${file.filename}</td>
+                                <td>${file.type}</td>
+                                <td>${(file.size / 1024).toFixed(2)} KB</td>
+                                <td>${new Date(file.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-small" onclick="deleteFile('${file.id}')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function deleteFile(fileId) {
+            if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/workspace/files/${fileId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    showAlert('success', 'File deleted successfully');
+                    loadFiles(); // Reload the list
+                } else {
+                    showAlert('error', 'Failed to delete file');
+                }
+            } catch (error) {
+                console.error('Error deleting file:', error);
+                showAlert('error', 'Failed to delete file: ' + error.message);
+            }
+        }
+
+
+    </script>
+</body>
+</html>

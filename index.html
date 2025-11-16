@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js AI Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0E1117;
+            --bg-secondary: #161B22;
+            --bg-tertiary: #2D333B;
+            --border-color: #2D333B;
+            --accent-blue: #58A6FF;
+            --accent-purple: #58A6FF;
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+        body { background-color: var(--bg-primary); color: var(--text-primary); }.hidden{ display: none; }
+        .btn-primary { background-color: var(--accent-blue); border-color: var(--accent-blue); }
+        .btn-secondary { background-color: var(--bg-tertiary); border-color: var(--border-color); }
+        .send-btn {position: absolute;bottom: 18px;right: 18px;max-width: 40px;max-height: 40px;}
+        .relative-noborder {position: relative;border-top: none !important;}
+        .offcanvas, .modal-content { background-color: var(--bg-secondary); color: var(--text-primary); }
+        .main-header { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .main-layout { display: grid; grid-template-columns: 1fr 400px; gap: 1rem; height: calc(100vh - 58px); padding: 1rem; }
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {border-color:none !important;}.card-header-tabs .nav-link.active {border-bottom-color: none !important;}
+        .main-panel, .ai-panel { background-color: var(--bg-secondary); border-radius: 0.5rem; overflow: hidden; display: flex; flex-direction: column; }
+        .panel-header { display: flex; align-items: center; height: 66px; padding: 0.75rem 1rem; background-color: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
+        .panel-body { flex-grow: 1; overflow: auto; position: relative; }
+        #codeInput, #previewContent iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; background-color: transparent; }
+        #codeInput { font-family: 'SF Mono', 'Consolas', 'Menlo', monospace; color: var(--text-primary); padding: 1rem; resize: none; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; cursor: pointer; border-radius: 0.25rem; }
+        .file-item:hover { background-color: var(--bg-tertiary); }
+        .file-item.active { background-color: var(--accent-blue); }
+        .delete-file-btn { color: var(--text-secondary); visibility: hidden; }
+        .file-item:hover .delete-file-btn { visibility: visible; }
+        .delete-file-btn:hover { color: #ff5555; }
+        .auth-container { display: none; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); }
+        .auth-box { background: var(--bg-secondary); padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); width: 400px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        textarea.form-control {min-height: calc(1.5em + .75rem + calc(var(--bs-border-width) * 2));resize: none !important;}.offcanvas-header {display: flex;align-items: center;padding: var(--bs-offcanvas-padding-y) var(--bs-offcanvas-padding-x);justify-content: space-between;}.ai-panel-toggle {display: none;}
+        .ai-panel-toggle-button {
+            display: none;
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            padding: 0.5rem;
+        }
+
+        /* Global Alert Styles */
+        #globalAlertContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2000;
+            width: 100%;
+            max-width: 400px;
+        }
+        .alert-custom {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .alert-custom.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .alert-custom.hide {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .alert-custom.success {
+            background-color: var(--success-color);
+        }
+        .alert-custom.error {
+            background-color: var(--error-color);
+        }
+        .alert-custom.warning {
+            background-color: var(--warning-color);
+            color: #333; /* Darker text for warning */
+        }
+        .alert-custom .close-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                display: block;
+                padding: 0;
+                height: calc(100vh - 50px);
+            }
+            .main-panel {
+                height: 100%;
+                border-radius: 0;
+            }
+            .ai-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 80vh;
+                z-index: 1000;
+                transform: translateY(calc(100% - 66px)); /* Show only header */
+                transition: transform 0.3s ease-in-out;
+                border-radius: 1rem 1rem 0 0;
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+            }
+            .ai-panel.is-open {
+                transform: translateY(0);
+            }
+            .ai-panel .panel-header {
+                cursor: pointer;
+                justify-content: space-between;
+            }
+            .ai-panel.is-open .ai-panel-toggle-button i {
+                transform: rotate(180deg);
+            }
+            .d-sm-inline, .d-none.d-sm-block {
+                display: none !important;
+            }
+            .ai-panel-toggle { /* This is the button in the main header */
+                display: block;
+            }
+            .ai-panel-toggle-button { /* This is the button in the AI panel header */
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="globalAlertContainer"></div>
+
+    <div id="loginPage" class="auth-container">
+        <div class="auth-box">
+            <h3 class="text-center mb-4">Three.js AI Studio</h3>
+            <form id="loginForm">
+                <div id="loginMessage" class="text-danger mb-2" style="min-height: 24px;"></div>
+                <div class="mb-3"><label for="loginEmail" class="form-label">Email</label><input type="email" class="form-control" id="loginEmail" required></div>
+                <div class="mb-3"><label for="loginPassword" class="form-label">Password</label><input type="password" class="form-control" id="loginPassword" required></div>
+                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                <div class="text-center mt-3"><a href="#" onclick="showRegister()">Don't have an account? Sign up</a></div>
+            </form>
+        </div>
+    </div>
+    <div id="registerPage" class="auth-container">
+        <div class="auth-box">
+            <h3 class="text-center mb-4">Create Account</h3>
+            <form id="registerForm">
+                <div id="registerMessage" class="text-danger mb-2" style="min-height: 24px;"></div>
+                <div class="mb-3"><label for="registerName" class="form-label">Full Name</label><input type="text" class="form-control" id="registerName" required></div>
+                <div class="mb-3"><label for="registerEmail" class="form-label">Email</label><input type="email" class="form-control" id="registerEmail" required></div>
+                <div class="mb-3"><label for="registerPassword" class="form-label">Password</label><input type="password" class="form-control" id="registerPassword" required></div>
+                <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                <div class="text-center mt-3"><a href="#" onclick="showLogin()">Already have an account? Sign in</a></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <header class="main-header p-2 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainSidebar" aria-controls="mainSidebar"><i class="fas fa-bars"></i></button>
+                <h5 class="m-0 d-none d-sm-block">Three.js AI Studio</h5>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-secondary ai-panel-toggle" onclick="toggleAiPanel()"><i class="fas fa-robot"></i></button>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#fileExplorer" aria-controls="fileExplorer"><i class="fas fa-folder-open"></i> <span class="d-none d-sm-inline">Files</span></button>
+                <button class="btn btn-secondary" onclick="saveFile()"><i class="fas fa-save"></i> <span class="d-none d-sm-inline">Save</span></button>
+            </div>
+        </header>
+        <main class="main-layout">
+            <div class="main-panel">
+                <div class="panel-header"><ul class="nav nav-tabs card-header-tabs" id="main-panel-tabs" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="editor-tab" data-bs-toggle="tab" data-bs-target="#editor-pane" type="button" role="tab">Editor</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-pane" type="button" role="tab" onclick="runPreview()">Preview</button></li></ul></div>
+                <div class="panel-body tab-content p-0"><div class="tab-pane fade show active h-100" id="editor-pane" role="tabpanel"><textarea id="codeInput" placeholder="// Your Three.js code here..."></textarea></div><div class="tab-pane fade h-100" id="preview-pane" role="tabpanel"><div id="preview-toolbar" class="p-2" style="position:absolute; top:0; right:0; z-index:10;"><button id="fixBtn" class="btn btn-sm btn-warning" onclick="fixCodeWithAI()" style="display: none;"><i class="fas fa-wrench"></i> Fix with AI</button><button class="btn btn-sm btn-secondary" onclick="runPreview()"><i class="fas fa-redo"></i></button></div><div id="previewContent" class="h-100"></div></div></div>
+            </div>
+            <div class="ai-panel">
+                <div class="panel-header">
+                    <h6 class="m-0">AI Assistant</h6>
+                    <button class="btn btn-sm btn-secondary ai-panel-toggle-button" onclick="toggleAiPanel()">
+                        <i class="fas fa-caret-up"></i>
+                    </button>
+                </div>
+                <div class="panel-body" id="aiMessages" style="padding: 1rem;"></div>
+                <div class="relative-noborder p-2 border-top border-secondary"><textarea id="aiInput" class="form-control" placeholder="e.g., Create a rotating cube..." rows="3"></textarea><button class="btn btn-primary send-btn w-100 mt-2" id="generateBtn" onclick="generateCode()"><i class="fas fa-bolt"></i></button></div>
+            </div>
+        </main>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mainSidebar" aria-labelledby="mainSidebarLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="mainSidebarLabel">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column"><div class="user-info p-3 mb-3 rounded" style="background-color: var(--bg-tertiary);"><div id="userName" class="fw-bold">Loading...</div><span class="badge bg-success-subtle text-success-emphasis rounded-pill">FREE PLAN</span>
+                    <a href="./profile" class="btn btn-sm btn-secondary mt-2 w-100"><i class="fas fa-user me-2"></i>View Profile</a></div><h6>Workspace</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light active" onclick="handleSidebarClick(event, 'My Workspace')"><i class="fas fa-home fa-fw me-2"></i>My Workspace</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Projects')"><i class="fas fa-file-code fa-fw me-2"></i>Projects</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Templates')"><i class="fas fa-shapes fa-fw me-2"></i>Templates</a></div><h6 class="mt-4">Tools</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'AI Assistant')"><i class="fas fa-robot fa-fw me-2"></i>AI Assistant</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Optimizer')"><i class="fas fa-bolt fa-fw me-2"></i>Optimizer</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Analytics')"><i class="fas fa-chart-line fa-fw me-2"></i>Analytics</a></div>                <div class="mt-auto hidden p-3 rounded text-center" style="background-color: var(--bg-tertiary);">
+                    <div>Generations Today</div>
+                    <div id="generationCount" class="fs-3 fw-bold">0/2</div>
+                </div>
+                <div class="p-3">
+                    <button class="btn btn-danger w-100" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="fileExplorer" aria-labelledby="fileExplorerLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="fileExplorerLabel"></h5><button class="btn btn-sm btn-primary" onclick="createNewFile()"><i class="fas fa-plus"></i> New File</button><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body p-2" id="fileList"></div></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="auth.js"></script>
+    <script type="module" src="./common/alert.js"></script>
+    <script type="module">
+      import { showAlert } from './common/alert.js';
+      window.showAlert = showAlert; // Make showAlert globally accessible
+    </script>
+    <script src="common.js"></script>
+    <script>
+        const API_BASE = 'https://three-ai-studio.warpzone.workers.dev';
+        let currentFileId = null;
+        let lastPreviewError = null;
+
+        const auth = new Auth(API_BASE);
+
+        function toggleAiPanel() {
+            document.querySelector('.ai-panel').classList.toggle('is-open');
+        }
+
+        function handleSidebarClick(event, itemName) { event.preventDefault(); showAlert('info', `${itemName} clicked. This feature is not yet implemented.`); }
+
+        function showLogin() { 
+            document.getElementById('loginPage').style.display = 'flex'; 
+            document.getElementById('dashboard').style.display = 'none'; 
+            document.getElementById('registerPage').style.display = 'none'; 
+            document.getElementById('loginMessage').textContent = '';
+            document.getElementById('registerMessage').textContent = '';
+        }
+        function showRegister() { 
+            document.getElementById('loginPage').style.display = 'none'; 
+            document.getElementById('registerPage').style.display = 'flex'; 
+            document.getElementById('loginMessage').textContent = '';
+            document.getElementById('registerMessage').textContent = '';
+        }
+        function showDashboard() { 
+            document.getElementById('loginPage').style.display = 'none'; 
+            document.getElementById('registerPage').style.display = 'none'; 
+            document.getElementById('dashboard').style.display = 'block'; 
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const messageDiv = document.getElementById('loginMessage');
+            messageDiv.textContent = '';
+
+            const result = await auth.login(email, password);
+
+            if (result.success) {
+                showDashboard();
+                loadWorkspace();
+            } else {
+                messageDiv.textContent = result.message;
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const messageDiv = document.getElementById('registerMessage');
+            messageDiv.textContent = '';
+
+            const result = await auth.register(name, email, password);
+
+            if (result.success) {
+                document.getElementById('loginMessage').textContent = result.message;
+                showLogin();
+            } else {
+                messageDiv.textContent = result.message;
+            }
+        }
+
+        function checkAuth() {
+            if (auth.isAuthenticated()) {
+                showDashboard();
+                loadWorkspace();
+            } else {
+                showLogin();
+            }
+        }
+
+        async function loadWorkspace() {
+            try {
+                const token = auth.getToken();
+                const user = auth.getUser();
+
+                const [workspaceRes, generationsRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/workspace`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API_BASE}/api/generate/remaining`, { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+                const workspaceData = await workspaceRes.json();
+                const generationsData = await generationsRes.json();
+                if (workspaceRes.ok) {
+                    document.getElementById('userName').textContent = user.name;
+                    document.getElementById('generationCount').textContent = `${generationsData.used}/${generationsData.max}`;
+                    loadFiles(workspaceData.workspace.files);
+                }
+            } catch (error) { console.error('Error loading workspace:', error); }
+        }
+
+        function loadFiles(files) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            if (!files || files.length === 0) { fileList.innerHTML = '<div class="text-center text-secondary p-3">No files yet.</div>'; return; }
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.dataset.fileId = file.id;
+                fileItem.innerHTML = `<span class="text-truncate" onclick="loadFile('${file.id}', '${file.filename}')"><i class="fas fa-file-code fa-fw me-2"></i>${file.filename}</span><button class="btn btn-sm delete-file-btn" onclick="deleteFile(event, '${file.id}', '${file.filename}')"><i class="fas fa-trash"></i></button>`;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        async function loadFile(fileId, filename) {
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
+            const fileItem = document.querySelector(`.file-item[data-file-id="${fileId}"]`);
+            if(fileItem) fileItem.classList.add('active');
+            try {
+                const response = await fetch(`${API_BASE}/api/workspace/files/${fileId}`, { headers: { 'Authorization': `Bearer ${auth.getToken()}` } });
+                if (response.ok) {
+                    const content = await response.text();
+                    document.getElementById('codeInput').value = content;
+                    currentFileId = fileId;
+                    const fileExplorerOffcanvas = bootstrap.Offcanvas.getInstance('#fileExplorer');
+                    if (fileExplorerOffcanvas) fileExplorerOffcanvas.hide();
+                    new bootstrap.Tab('#editor-tab').show();
+                    showAlert('success', `File '${filename}' loaded successfully.`);
+                } else { showAlert('error', 'Failed to load file.'); }
+            } catch (error) { console.error('Error loading file:', error); showAlert('error', 'Error loading file: ' + error.message); }
+        }
+
+        async function deleteFile(event, fileId, filename) {
+            event.stopPropagation();
+            if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/workspace/files/${fileId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${auth.getToken()}` } });
+                if (response.ok) {
+                    if (currentFileId === fileId) { document.getElementById('codeInput').value = ''; currentFileId = null; }
+                    loadWorkspace();
+                    showAlert('success', `File '${filename}' deleted successfully.`);
+                } else { const data = await response.json(); showAlert('error', data.error || 'Failed to delete file.'); }
+            } catch (error) { console.error('Error deleting file:', error); showAlert('error', 'Error deleting file: ' + error.message); }
+        }
+
+        async function saveFile() {
+            if (!currentFileId) { createNewFile(); return; }
+            const content = document.getElementById('codeInput').value;
+            const fileItem = document.querySelector(`.file-item[data-file-id="${currentFileId}"] span`);
+            if (!fileItem) { showAlert('error', "Could not find file information to save."); return; }
+            const filename = fileItem.innerText.trim();
+            try {
+                const response = await fetch(`${API_BASE}/api/workspace/files`, { method: 'POST', headers: { 'Authorization': `Bearer ${auth.getToken()}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ filename, content, fileId: currentFileId }) });
+                if (response.ok) { showAlert('success', 'File saved successfully!'); loadWorkspace(); } else { showAlert('error', 'Error saving file.'); } 
+            } catch (error) { showAlert('error', 'Error saving file: ' + error.message); }
+        }
+        
+        function createNewFile() {
+            const filename = prompt('Enter filename (e.g., scene.js):');
+            if (filename) {
+                const content = `// ${filename}\n\n`;
+                document.getElementById('codeInput').value = content;
+                currentFileId = null; 
+                saveNewFile(filename, content);
+            } else {
+                showAlert('warning', 'File creation cancelled.');
+            }
+        }
+
+        async function saveNewFile(filename, content) {
+             try {
+                const response = await fetch(`${API_BASE}/api/workspace/files`, { method: 'POST', headers: { 'Authorization': `Bearer ${auth.getToken()}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ filename, content }) });
+                if (response.ok) {
+                    const data = await response.json();
+                    await loadWorkspace();
+                    await loadFile(data.file.id, data.file.filename);
+                    showAlert('success', `New file '${filename}' created successfully.`);
+                } else { showAlert('error', 'Error creating file.'); }
+            } catch (error) { showAlert('error', 'Error creating file: ' + error.message); }
+        }
+
+        function runPreview() {
+            const userCode = document.getElementById('codeInput').value;
+            const previewContent = document.getElementById('previewContent');
+            const fixBtn = document.getElementById('fixBtn');
+
+            previewContent.innerHTML = '';
+            fixBtn.style.display = 'none';
+            lastPreviewError = null;
+
+            const normalized = userCode.trim().toLowerCase();
+            const isFullHtml =
+                normalized.startsWith('<!doctype') ||
+                normalized.startsWith('<html');
+
+            let finalCode;
+
+            if (isFullHtml) {
+                // User already provided a full HTML doc
+                finalCode = userCode;
+            } else {
+                // Wrap user JS into Three.js preview template
+                finalCode = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <title>Three.js Preview</title>
+            <style>
+                body { margin: 0; overflow: hidden; background: #000; }
+            </style>
+        </head>
+        <body>
+            <script type="module">
+                import * as THREE from 'https://esm.run/three';
+
+                // Forward runtime errors to parent app
+                window.addEventListener('error', function(event) {
+                    window.parent.postMessage({
+                        type: 'preview_error',
+                        error: { message: event.message, stack: event.error ? event.error.stack : 'No stack available' }
+                    }, '*');
+                });
+
+                try {
+                    ${userCode}
+                } catch (e) {
+                    window.parent.postMessage({
+                        type: 'preview_error',
+                        error: { message: e.message, stack: e.stack }
+                    }, '*');
+                }
+            <\/script>
+        </body>
+        </html>`;
+            }
+
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = `
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                border: none;
+            `;
+            iframe.srcdoc = finalCode;
+
+            previewContent.appendChild(iframe);
+            showAlert('info', 'Preview updated.');
+        }
+
+        window.addEventListener('message', function(event) {
+            if (!event.data || event.data.type !== 'preview_error') return;
+            const error = event.data.error;
+            console.error("Preview Error:", error);
+            lastPreviewError = error;
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = `<div class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3 h-100"><h3><i class="fas fa-exclamation-triangle"></i> Preview Error</h3><pre class="text-break" style="white-space: pre-wrap;">${error.stack || error.message}</pre></div>`;
+            document.getElementById('fixBtn').style.display = 'inline-block';
+            showAlert('error', 'Preview Error: ' + (error.message || 'An unknown error occurred.'));
+        });
+
+        async function generateCode() {
+            const prompt = document.getElementById('aiInput').value;
+            if (!prompt.trim()) {
+                showAlert('warning', 'Please enter a prompt to generate code.');
+                return;
+            }
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            try {
+                const response = await fetch(`${API_BASE}/api/generate`, { method: 'POST', headers: { 'Authorization': `Bearer ${auth.getToken()}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, type: 'threejs-scene' }) });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('aiMessages').innerHTML = data.reasoning;
+                    document.getElementById('codeInput').value = data.code;
+                    await loadWorkspace();
+                    new bootstrap.Tab('#preview-tab').show();
+                    runPreview();
+                    showAlert('success', 'Code generated successfully!');
+                } else { 
+                    showAlert('error', data.error || 'Generation failed'); 
+                }
+            } catch (error) { 
+                showAlert('error', 'Generation error: ' + error.message); 
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-bolt"></i>';
+            }
+        }
+
+        async function fixCodeWithAI() {
+            if (!lastPreviewError) { showAlert('warning', 'No error to fix!'); return; }
+            const userCode = document.getElementById('codeInput').value;
+            const errorStack = lastPreviewError.stack || lastPreviewError.message;
+            const fixBtn = document.getElementById('fixBtn');
+            fixBtn.disabled = true;
+            fixBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            try {
+                const response = await fetch(`${API_BASE}/api/fix-code`, { method: 'POST', headers: { 'Authorization': `Bearer ${auth.getToken()}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ code: userCode, error: errorStack }) });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('codeInput').value = data.fixedCode;
+                    showAlert('success', 'AI has attempted to fix the code. Please review and run the preview again.');
+                    lastPreviewError = null;
+                    fixBtn.style.display = 'none';
+                    new bootstrap.Tab('#editor-tab').show();
+                } else { showAlert('error', data.error || 'Failed to fix code.'); }
+            } catch (error) { showAlert('error', 'Error communicating with AI: ' + error.message); } finally {
+                fixBtn.disabled = false;
+                fixBtn.innerHTML = '<i class="fas fa-wrench"></i> Fix with AI';
+            }
+        }
+
+        function logout() {
+            auth.logout();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        document.getElementById('registerForm').addEventListener('submit', handleRegister);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+
+        // Global error handler for better debugging
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error("Global Error Caught:", {
+                message: message,
+                source: source,
+                lineno: lineno,
+                colno: colno,
+                stack: error ? error.stack : 'No stack available'
+            });
+            showAlert('error', 'An unexpected error occurred. Please check the console for details.');
+            return true; // Prevent default error handling
+        };
+    </script>
+</body>
+</html>
