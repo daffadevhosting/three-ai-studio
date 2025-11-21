@@ -774,11 +774,8 @@
                     <h4 style="margin-bottom: 8px; color: var(--accent-blue);">
                         <i class="fas fa-lightbulb"></i> Token Usage
                     </h4>
-                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
-                        • Code Generation: <strong>10 tokens</strong><br>
-                        • Code Optimization: <strong>5 tokens</strong><br>
-                        • File Analysis: <strong>3 tokens</strong><br>
-                        • Complex prompts may cost more
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;" id="tokenUsageInfo">
+                        Loading token usage information...
                     </p>
                 </div>
 
@@ -1092,9 +1089,71 @@
 
         function showPricingModal() {
             // Scroll to pricing section
-            document.querySelector('.pricing-section').scrollIntoView({ 
-                behavior: 'smooth' 
+            document.querySelector('.pricing-section').scrollIntoView({
+                behavior: 'smooth'
             });
+        }
+
+        // Load token pricing information
+        async function loadTokenPricing() {
+            try {
+                const response = await fetch(`${API_BASE}/api/pricing/usage`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayTokenPricing(data.pricing);
+                } else {
+                    console.error('Failed to load token pricing:', response.status);
+                    // Show default pricing if API call fails
+                    displayTokenPricing({
+                        modelCosts: {
+                            inputPerMillion: 0.497,
+                            outputPerMillion: 4.881
+                        },
+                        conversionRate: 10000,
+                        maintenanceMargin: 0.10,
+                        note: "Actual cost depends on actual input and output token usage."
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading token pricing:', error);
+                // Show default pricing if error occurs
+                displayTokenPricing({
+                    modelCosts: {
+                        inputPerMillion: 0.497,
+                        outputPerMillion: 4.881
+                    },
+                    conversionRate: 10000,
+                    maintenanceMargin: 0.10,
+                    note: "Actual cost depends on actual input and output token usage."
+                });
+            }
+        }
+
+        function displayTokenPricing(pricing) {
+            const container = document.getElementById('tokenUsageInfo');
+
+            // Calculate example cost for 1000 input and 2000 output tokens
+            const exampleInput = 1000;
+            const exampleOutput = 2000;
+            const inputCost = (exampleInput / 1000000) * pricing.modelCosts.inputPerMillion;
+            const outputCost = (exampleOutput / 1000000) * pricing.modelCosts.outputPerMillion;
+            const totalCost = inputCost + outputCost;
+            const totalCostWithMargin = totalCost * (1 + pricing.maintenanceMargin);
+            const tokenCost = Math.round(totalCostWithMargin * pricing.conversionRate);
+
+            container.innerHTML = `
+                • Input Token Cost: <strong>${pricing.modelCosts.inputPerMillion} USD per million tokens</strong><br>
+                • Output Token Cost: <strong>${pricing.modelCosts.outputPerMillion} USD per million tokens</strong><br>
+                • Conversion Rate: <strong>1 USD = ${pricing.conversionRate} tokens</strong><br>
+                • Example: 1000 input + 2000 output tokens ≈ <strong>${tokenCost} tokens</strong><br>
+                • ${pricing.note}
+            `;
         }
 
         // Listen for payment completion messages

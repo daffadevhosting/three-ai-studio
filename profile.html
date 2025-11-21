@@ -1363,7 +1363,7 @@
                                     ${transaction.plan ? `- ${transaction.plan}` : ''}
                                 </td>
                                 <td style="color: ${transaction.type === 'credit' ? 'var(--accent-green)' : 'var(--error)'};">
-                                    ${transaction.type === 'credit' ? '+' : '-'}${transaction.amount}
+                                    ${transaction.type === 'credit' ? '+' : '-'}${Math.round(transaction.amount)}
                                 </td>
                                 <td>
                                     <span class="key-status ${transaction.type === 'credit' ? 'status-active' : 'status-revoked'}">
@@ -1521,7 +1521,7 @@
                                         </td>
                                         <td>${details}</td>
                                         <td style="color: ${typeColor};">
-                                            ${transaction.type === 'debit' ? '-' : '+'}${transaction.amount}
+                                            ${transaction.type === 'debit' ? '-' : '+'}${Math.round(transaction.amount)}
                                         </td>
                                         <td>${date}</td>
                                     </tr>
