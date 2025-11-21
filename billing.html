@@ -1116,8 +1116,14 @@
                             inputPerMillion: 0.497,
                             outputPerMillion: 4.881
                         },
-                        conversionRate: 10000,
+                        conversionRate: 2500,
                         maintenanceMargin: 0.10,
+                        neuronRate: 0.11,
+                        neuronPer10k: 10000,
+                        neuronCosts: {
+                            inputPerMillion: 45170,
+                            outputPerMillion: 443756
+                        },
                         note: "Actual cost depends on actual input and output token usage."
                     });
                 }
@@ -1129,8 +1135,14 @@
                         inputPerMillion: 0.497,
                         outputPerMillion: 4.881
                     },
-                    conversionRate: 10000,
+                    conversionRate: 2500,
                     maintenanceMargin: 0.10,
+                    neuronRate: 0.11,
+                    neuronPer10k: 10000,
+                    neuronCosts: {
+                        inputPerMillion: 45170,
+                        outputPerMillion: 443756
+                    },
                     note: "Actual cost depends on actual input and output token usage."
                 });
             }
@@ -1151,8 +1163,9 @@
             container.innerHTML = `
                 • Input Token Cost: <strong>${pricing.modelCosts.inputPerMillion} USD per million tokens</strong><br>
                 • Output Token Cost: <strong>${pricing.modelCosts.outputPerMillion} USD per million tokens</strong><br>
-                • Conversion Rate: <strong>1 USD = ${pricing.conversionRate} tokens</strong><br>
-                • Example: 1000 input + 2000 output tokens ≈ <strong>${tokenCost} tokens</strong><br>
+                • Conversion Rate: <strong>1 USD = ${pricing.conversionRate} tokens</strong> (with markup for infrastructure)<br>
+                • Example: 1000 input + 2000 output ≈ <strong>${tokenCost} tokens</strong><br>
+                • Neurons: ${pricing.neuronCosts.inputPerMillion} per M input, ${pricing.neuronCosts.outputPerMillion} per M output<br>
                 • ${pricing.note}
             `;
         }
