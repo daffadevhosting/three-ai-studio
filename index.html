@@ -17,6 +17,7 @@
             --text-primary: #F0F6FC;
             --text-secondary: #8B949E;
             --success-color: #28a745;
+            --info-color: #58A6FF;
             --error-color: #dc3545;
             --warning-color: #ffc107;
         }
@@ -85,6 +86,9 @@
         .alert-custom.success {
             background-color: var(--success-color);
         }
+        .alert-custom.info {
+            background-color: var(--info-color);
+        }
         .alert-custom.error {
             background-color: var(--error-color);
         }
@@ -116,7 +120,7 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
-                height: 80vh;
+                height: 90vh;
                 z-index: 1000;
                 transform: translateY(calc(100% - 66px)); /* Show only header */
                 transition: transform 0.3s ease-in-out;
