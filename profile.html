@@ -1050,6 +1050,7 @@
             loadAPIKeys();
             loadPricingPlans();
             loadTransactionHistory();
+            loadRecentActivity(); // Load recent activity on page initialization
             loadFiles(); // Load files on page initialization
         }
 
@@ -1058,7 +1059,7 @@
             // Hide all sections
             document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
             document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.remove('active'));
-            
+
             // Show selected section
             document.getElementById(`${section}-section`).style.display = 'block';
             document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
@@ -1066,6 +1067,10 @@
             // Load files if "My Files" section is selected
             if (section === 'my-files') {
                 loadFiles();
+            }
+            // Load recent activity if "Overview" section is selected
+            if (section === 'overview') {
+                loadRecentActivity();
             }
         }
 
@@ -1446,6 +1451,86 @@
             } else {
                 showAlert('info', 'Custom token purchase cancelled.');
             }
+        }
+
+        // Recent Activity Functions
+        async function loadRecentActivity() {
+            try {
+                const response = await fetch(`${API_BASE}/api/billing/transactions`, {
+                    headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayRecentActivity(data.transactions);
+                } else {
+                    console.error('Failed to load transactions:', response.status);
+                }
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+            }
+        }
+
+        function displayRecentActivity(transactions) {
+            const container = document.getElementById('recentActivity');
+
+            if (!transactions || transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <p>No recent activity</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Process the latest 5 transactions for the recent activity
+            const recentTransactions = transactions.slice(0, 5);
+
+            container.innerHTML = `
+                <div style="background: var(--bg-tertiary); border-radius: 8px; overflow: hidden;">
+                    <table class="api-keys-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Details</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${recentTransactions.map(transaction => {
+                                const typeIcon = transaction.type === 'debit' ? 'fa-minus-circle' : 'fa-plus-circle';
+                                const typeColor = transaction.type === 'debit' ? 'var(--error)' : 'var(--success)';
+                                const date = new Date(transaction.timestamp).toLocaleString();
+                                let details = '';
+
+                                if (transaction.action) {
+                                    details = transaction.action;
+                                } else if (transaction.plan) {
+                                    details = transaction.plan.charAt(0).toUpperCase() + transaction.plan.slice(1);
+                                } else {
+                                    details = 'Transaction';
+                                }
+
+                                return `
+                                    <tr>
+                                        <td>
+                                            <i class="fas ${typeIcon}" style="color: ${typeColor};"></i>
+                                            ${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                                        </td>
+                                        <td>${details}</td>
+                                        <td style="color: ${typeColor};">
+                                            ${transaction.type === 'debit' ? '-' : '+'}${transaction.amount}
+                                        </td>
+                                        <td>${date}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
         }
 
         function showDeleteAccountModal() {
