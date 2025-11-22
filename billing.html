@@ -1017,7 +1017,7 @@
 
         function calculateCustomPrice() {
             const amount = parseInt(document.getElementById('customTokenAmount').value) || 0;
-            const price = (amount / 1000) * 2;
+            const price = (amount / 100) * 2;
             document.getElementById('customPrice').textContent = `$${Math.max(1, price).toFixed(2)}`;
         }
 

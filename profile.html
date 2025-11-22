@@ -39,6 +39,10 @@
             min-height: 100vh;
         }
 
+        .hidden {
+            display: none !important;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -438,7 +442,7 @@
             background: var(--bg-secondary);
             border-radius: 12px;
             width: 90%;
-            max-width: 500px;
+            max-width: 800px;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -551,6 +555,13 @@
             min-height: 40px;
         }
 
+        .modal-pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 3fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
         /* Empty States */
         .empty-state {
             text-align: center;
@@ -584,6 +595,23 @@
             
             .pricing-card.featured {
                 transform: none;
+            }
+
+            .modal-content {
+                width: -webkit-fill-available;
+                max-height: 100vh;
+            }
+
+            .modal-header {
+                position: fixed;
+                z-index: 1000;
+                width: 100%;
+                background: #171b22;
+                box-shadow: 0px 5px 15px -2px #2152898f;
+            }
+            .modal-body {
+                padding: 24px;
+                margin-top: 50px;
             }
         }
 
@@ -812,7 +840,7 @@
                         </div>
 
                         <!-- Pricing Plans -->
-                        <div class="section">
+                        <div class="section hidden">
                             <div class="section-header">
                                 <h2 class="section-title">Token Packages</h2>
                             </div>
@@ -972,10 +1000,10 @@
                 <button class="modal-close" onclick="closePricingModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="pricing-grid">
+                <div class="modal-pricing-grid">
                     <div class="pricing-card" onclick="purchaseTokens('starter')">
                         <div class="pricing-name">Starter</div>
-                        <div class="pricing-tokens">2,000 Tokens</div>
+                        <div class="pricing-tokens">200 Tokens</div>
                         <div class="pricing-price">$2</div>
                         <div class="pricing-savings">100% more tokens</div>
                         <div class="pricing-description">Perfect for testing and experimentation</div>
@@ -985,7 +1013,7 @@
                     <div class="pricing-card featured" onclick="purchaseTokens('pro')">
                         <div class="pricing-badge">MOST POPULAR</div>
                         <div class="pricing-name">Pro</div>
-                        <div class="pricing-tokens">12,000 Tokens</div>
+                        <div class="pricing-tokens">1200 Tokens</div>
                         <div class="pricing-price">$12</div>
                         <div class="pricing-savings">20% more tokens</div>
                         <div class="pricing-description">Great for regular development work</div>
@@ -994,7 +1022,7 @@
 
                     <div class="pricing-card" onclick="purchaseTokens('power')">
                         <div class="pricing-name">Power</div>
-                        <div class="pricing-tokens">60,000 Tokens</div>
+                        <div class="pricing-tokens">6000 Tokens</div>
                         <div class="pricing-price">$50</div>
                         <div class="pricing-savings">20% more tokens</div>
                         <div class="pricing-description">Heavy users & small teams</div>
