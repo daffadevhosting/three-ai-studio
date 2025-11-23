@@ -21,6 +21,8 @@
             --success: #28a745;
             --warning: #ffc107;
             --error: #dc3545;
+            --default-color: #121624;
+            --info-color: #58A6FF;
             --success-color: #28a745;
             --error-color: #dc3545;
             --warning-color: #ffc107;
@@ -643,6 +645,9 @@
         .alert-custom.hide {
             opacity: 0;
             transform: translateY(-20px);
+        }
+        .alert-custom.default {
+            background-color: var(--default-color);
         }
         .alert-custom.success {
             background-color: var(--success-color);

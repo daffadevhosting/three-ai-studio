@@ -21,6 +21,11 @@
             --success: #28a745;
             --warning: #ffc107;
             --error: #dc3545;
+            --default-color: #121624;
+            --info-color: #58A6FF;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --warning-color: #ffc107;
         }
 
         * {
@@ -584,9 +589,61 @@
                 padding: 12px 8px;
             }
         }
+
+        /* Global Alert Styles */
+        #globalAlertContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2000;
+            width: 100%;
+            max-width: 400px;
+        }
+        .alert-custom {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .alert-custom.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .alert-custom.hide {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .alert-custom.default {
+            background-color: var(--default-color);
+        }
+        .alert-custom.success {
+            background-color: var(--success-color);
+        }
+        .alert-custom.error {
+            background-color: var(--error-color);
+        }
+        .alert-custom.warning {
+            background-color: var(--warning-color);
+            color: #333; /* Darker text for warning */
+        }
+        .alert-custom .close-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
     </style>
 </head>
 <body>
+    <div id="globalAlertContainer"></div>
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -1002,7 +1059,7 @@
                 }
             } catch (error) {
                 console.error('Error purchasing tokens:', error);
-                alert('Payment Error: ' + error.message);
+                showAlert('error', 'Payment Error: ' + error.message);
             } finally {
                 showLoading(false);
             }
@@ -1025,12 +1082,12 @@
             const amount = parseInt(document.getElementById('customTokenAmount').value) || 0;
             
             if (amount < 100) {
-                alert('Minimum purchase is 100 tokens');
+                showAlert('info', 'Minimum purchase is 100 tokens');
                 return;
             }
 
             if (amount > 1000000) {
-                alert('Maximum purchase is 1,000,000 tokens');
+                showAlert('warning', 'Maximum purchase is 1,000,000 tokens');
                 return;
             }
 
@@ -1064,7 +1121,7 @@
                 }
             } catch (error) {
                 console.error('Error purchasing custom tokens:', error);
-                alert('Payment Error: ' + error.message);
+                showAlert('error', 'Payment Error: ' + error.message);
             } finally {
                 showLoading(false);
             }
@@ -1085,7 +1142,7 @@
         }
 
         function showUsageAnalytics() {
-            alert('Detailed usage analytics will open in a new window. This feature is coming soon!');
+            showAlert('default', 'Detailed usage analytics will open in a new window. This feature is coming soon!');
         }
 
         function showPricingModal() {
@@ -1175,14 +1232,14 @@
             if (event.data.type === 'payment_completed') {
                 // Reload data to reflect new balance
                 initializeBillingPage();
-                alert('Payment completed! Your tokens have been added.');
+                showAlert('info', 'Payment completed! Your tokens have been added.');
             }
         });
 
         // Check for payment success on page load
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams && urlParams.get('success') === 'true') {
-            alert('Payment completed successfully! Your tokens have been added to your account.');
+            showAlert('success', 'Payment completed successfully! Your tokens have been added to your account.');
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
         }

@@ -16,7 +16,8 @@
             --accent-purple: #58A6FF;
             --text-primary: #F0F6FC;
             --text-secondary: #8B949E;
-            --success-color: #28a745;
+            --default-color: #121624;
+            --success-color: #28a745
             --info-color: #58A6FF;
             --error-color: #dc3545;
             --warning-color: #ffc107;
@@ -54,8 +55,8 @@
             padding: 0.5rem;
         }
 
-        /* Global Alert Styles */
-        #globalAlertContainer {
+        /* Global showAlert Styles */
+        #globalshowAlertContainer {
             position: fixed;
             top: 10px;
             right: 10px;
@@ -63,7 +64,7 @@
             width: 100%;
             max-width: 400px;
         }
-        .alert-custom {
+        .showAlert-custom {
             padding: 1rem;
             margin-bottom: 0.5rem;
             border-radius: 0.3rem;
@@ -75,28 +76,31 @@
             transform: translateY(-20px);
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
         }
-        .alert-custom.show {
+        .showAlert-custom.show {
             opacity: 1;
             transform: translateY(0);
         }
-        .alert-custom.hide {
+        .showAlert-custom.hide {
             opacity: 0;
             transform: translateY(-20px);
         }
-        .alert-custom.success {
+        .showAlert-custom.default {
+            background-color: var(--default-color);
+        }
+        .showAlert-custom.success {
             background-color: var(--success-color);
         }
-        .alert-custom.info {
+        .showAlert-custom.info {
             background-color: var(--info-color);
         }
-        .alert-custom.error {
+        .showAlert-custom.error {
             background-color: var(--error-color);
         }
-        .alert-custom.warning {
+        .showAlert-custom.warning {
             background-color: var(--warning-color);
             color: #333; /* Darker text for warning */
         }
-        .alert-custom .close-btn {
+        .showAlert-custom .close-btn {
             background: none;
             border: none;
             color: inherit;
@@ -150,7 +154,7 @@
     </style>
 </head>
 <body>
-    <div id="globalAlertContainer"></div>
+    <div id="globalshowAlertContainer"></div>
 
     <div id="loginPage" class="auth-container">
         <div class="auth-box">
@@ -223,10 +227,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="auth.js"></script>
-    <script type="module" src="./common/alert.js"></script>
+    <script type="module" src="./common/showAlert.js"></script>
     <script type="module">
-      import { showAlert } from './common/alert.js';
-      window.showAlert = showAlert; // Make showAlert globally accessible
+      import { showshowAlert } from './common/showAlert.js';
+      window.showshowAlert = showshowAlert; // Make showshowAlert globally accessible
     </script>
     <script src="common.js"></script>
     <script>
@@ -240,7 +244,7 @@
             document.querySelector('.ai-panel').classList.toggle('is-open');
         }
 
-        function handleSidebarClick(event, itemName) { event.preventDefault(); showAlert('info', `${itemName} clicked. This feature is not yet implemented.`); }
+        function handleSidebarClick(event, itemName) { event.preventDefault(); showshowAlert('info', `${itemName} clicked. This feature is not yet implemented.`); }
 
         function showLogin() { 
             document.getElementById('loginPage').style.display = 'flex'; 
@@ -350,9 +354,9 @@
                     const fileExplorerOffcanvas = bootstrap.Offcanvas.getInstance('#fileExplorer');
                     if (fileExplorerOffcanvas) fileExplorerOffcanvas.hide();
                     new bootstrap.Tab('#editor-tab').show();
-                    showAlert('success', `File '${filename}' loaded successfully.`);
-                } else { showAlert('error', 'Failed to load file.'); }
-            } catch (error) { console.error('Error loading file:', error); showAlert('error', 'Error loading file: ' + error.message); }
+                    showshowAlert('success', `File '${filename}' loaded successfully.`);
+                } else { showshowAlert('error', 'Failed to load file.'); }
+            } catch (error) { console.error('Error loading file:', error); showshowAlert('error', 'Error loading file: ' + error.message); }
         }
 
         async function deleteFile(event, fileId, filename) {
@@ -363,21 +367,21 @@
                 if (response.ok) {
                     if (currentFileId === fileId) { document.getElementById('codeInput').value = ''; currentFileId = null; }
                     loadWorkspace();
-                    showAlert('success', `File '${filename}' deleted successfully.`);
-                } else { const data = await response.json(); showAlert('error', data.error || 'Failed to delete file.'); }
-            } catch (error) { console.error('Error deleting file:', error); showAlert('error', 'Error deleting file: ' + error.message); }
+                    showshowAlert('success', `File '${filename}' deleted successfully.`);
+                } else { const data = await response.json(); showshowAlert('error', data.error || 'Failed to delete file.'); }
+            } catch (error) { console.error('Error deleting file:', error); showshowAlert('error', 'Error deleting file: ' + error.message); }
         }
 
         async function saveFile() {
             if (!currentFileId) { createNewFile(); return; }
             const content = document.getElementById('codeInput').value;
             const fileItem = document.querySelector(`.file-item[data-file-id="${currentFileId}"] span`);
-            if (!fileItem) { showAlert('error', "Could not find file information to save."); return; }
+            if (!fileItem) { showshowAlert('error', "Could not find file information to save."); return; }
             const filename = fileItem.innerText.trim();
             try {
                 const response = await fetch(`${API_BASE}/api/workspace/files`, { method: 'POST', headers: { 'Authorization': `Bearer ${auth.getToken()}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ filename, content, fileId: currentFileId }) });
-                if (response.ok) { showAlert('success', 'File saved successfully!'); loadWorkspace(); } else { showAlert('error', 'Error saving file.'); } 
-            } catch (error) { showAlert('error', 'Error saving file: ' + error.message); }
+                if (response.ok) { showshowAlert('success', 'File saved successfully!'); loadWorkspace(); } else { showshowAlert('error', 'Error saving file.'); } 
+            } catch (error) { showshowAlert('error', 'Error saving file: ' + error.message); }
         }
         
         function createNewFile() {
@@ -388,7 +392,7 @@
                 currentFileId = null; 
                 saveNewFile(filename, content);
             } else {
-                showAlert('warning', 'File creation cancelled.');
+                showshowAlert('warning', 'File creation cancelled.');
             }
         }
 
@@ -399,9 +403,9 @@
                     const data = await response.json();
                     await loadWorkspace();
                     await loadFile(data.file.id, data.file.filename);
-                    showAlert('success', `New file '${filename}' created successfully.`);
-                } else { showAlert('error', 'Error creating file.'); }
-            } catch (error) { showAlert('error', 'Error creating file: ' + error.message); }
+                    showshowAlert('success', `New file '${filename}' created successfully.`);
+                } else { showshowAlert('error', 'Error creating file.'); }
+            } catch (error) { showshowAlert('error', 'Error creating file: ' + error.message); }
         }
 
         function runPreview() {
@@ -469,7 +473,7 @@
             iframe.srcdoc = finalCode;
 
             previewContent.appendChild(iframe);
-            showAlert('info', 'Preview updated.');
+            showshowAlert('info', 'Preview updated.');
         }
 
         window.addEventListener('message', function(event) {
@@ -480,13 +484,13 @@
             const previewContent = document.getElementById('previewContent');
             previewContent.innerHTML = `<div class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3 h-100"><h3><i class="fas fa-exclamation-triangle"></i> Preview Error</h3><pre class="text-break" style="white-space: pre-wrap;">${error.stack || error.message}</pre></div>`;
             document.getElementById('fixBtn').style.display = 'inline-block';
-            showAlert('error', 'Preview Error: ' + (error.message || 'An unknown error occurred.'));
+            showshowAlert('error', 'Preview Error: ' + (error.message || 'An unknown error occurred.'));
         });
 
         async function generateCode() {
             const prompt = document.getElementById('aiInput').value;
             if (!prompt.trim()) {
-                showAlert('warning', 'Please enter a prompt to generate code.');
+                showshowAlert('warning', 'Please enter a prompt to generate code.');
                 return;
             }
             const generateBtn = document.getElementById('generateBtn');
@@ -501,12 +505,12 @@
                     await loadWorkspace();
                     new bootstrap.Tab('#preview-tab').show();
                     runPreview();
-                    showAlert('success', 'Code generated successfully!');
+                    showshowAlert('success', 'Code generated successfully!');
                 } else { 
-                    showAlert('error', data.error || 'Generation failed'); 
+                    showshowAlert('error', data.error || 'Generation failed'); 
                 }
             } catch (error) { 
-                showAlert('error', 'Generation error: ' + error.message); 
+                showshowAlert('error', 'Generation error: ' + error.message); 
             } finally {
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = '<i class="fas fa-bolt"></i>';
@@ -514,7 +518,7 @@
         }
 
         async function fixCodeWithAI() {
-            if (!lastPreviewError) { showAlert('warning', 'No error to fix!'); return; }
+            if (!lastPreviewError) { showshowAlert('warning', 'No error to fix!'); return; }
             const userCode = document.getElementById('codeInput').value;
             const errorStack = lastPreviewError.stack || lastPreviewError.message;
             const fixBtn = document.getElementById('fixBtn');
@@ -525,12 +529,12 @@
                 const data = await response.json();
                 if (response.ok) {
                     document.getElementById('codeInput').value = data.fixedCode;
-                    showAlert('success', 'AI has attempted to fix the code. Please review and run the preview again.');
+                    showshowAlert('success', 'AI has attempted to fix the code. Please review and run the preview again.');
                     lastPreviewError = null;
                     fixBtn.style.display = 'none';
                     new bootstrap.Tab('#editor-tab').show();
-                } else { showAlert('error', data.error || 'Failed to fix code.'); }
-            } catch (error) { showAlert('error', 'Error communicating with AI: ' + error.message); } finally {
+                } else { showshowAlert('error', data.error || 'Failed to fix code.'); }
+            } catch (error) { showshowAlert('error', 'Error communicating with AI: ' + error.message); } finally {
                 fixBtn.disabled = false;
                 fixBtn.innerHTML = '<i class="fas fa-wrench"></i> Fix with AI';
             }
@@ -556,7 +560,7 @@
                 colno: colno,
                 stack: error ? error.stack : 'No stack available'
             });
-            showAlert('error', 'An unexpected error occurred. Please check the console for details.');
+            showshowAlert('error', 'An unexpected error occurred. Please check the console for details.');
             return true; // Prevent default error handling
         };
     </script>
