@@ -47,12 +47,56 @@
         textarea.form-control {min-height: calc(1.5em + .75rem + calc(var(--bs-border-width) * 2));resize: none !important;}.offcanvas-header {display: flex;align-items: center;padding: var(--bs-offcanvas-padding-y) var(--bs-offcanvas-padding-x);justify-content: space-between;}.ai-panel-toggle {display: none;}
         .ai-panel-toggle-button {
             display: none;
-            margin-left: auto;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-            padding: 0.5rem;
+        }
+
+        /* Chat Styles */
+        #aiMessages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-message {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: var(--accent-blue);
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+        }
+        .ai-message {
+            background-color: var(--bg-tertiary);
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+        }
+        .ai-message pre { /* For code blocks in reasoning */
+            background: var(--bg-primary);
+            padding: 10px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+        }
+        .loading-dots {
+          display: flex;
+          align-items: center;
+        }
+        .loading-dots .dot {
+          background-color: var(--text-secondary);
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          margin: 0 3px;
+          animation: dot-pulse 1.4s infinite ease-in-out;
+        }
+        .loading-dots .dot:nth-child(2) { animation-delay: -1.2s; }
+        .loading-dots .dot:nth-child(3) { animation-delay: -1.0s; }
+        @keyframes dot-pulse {
+          0%, 80%, 100% { transform: scale(0); } 
+          40% { transform: scale(1.0); }
         }
 
         /* Global showAlert Styles */
@@ -488,32 +532,87 @@
         });
 
         async function generateCode() {
-            const prompt = document.getElementById('aiInput').value;
-            if (!prompt.trim()) {
+            const aiInput = document.getElementById('aiInput');
+            const prompt = aiInput.value.trim();
+            if (!prompt) {
                 showAlert('warning', 'Please enter a prompt to generate code.');
                 return;
             }
+
             const generateBtn = document.getElementById('generateBtn');
+            const messagesContainer = document.getElementById('aiMessages');
+
+            // 1. Add user message to chat
+            const userMessageEl = document.createElement('div');
+            userMessageEl.className = 'chat-message user-message';
+            userMessageEl.textContent = prompt;
+            messagesContainer.appendChild(userMessageEl);
+
+            // 2. Clear input and show loading indicator
+            aiInput.value = '';
             generateBtn.disabled = true;
             generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            const loadingEl = document.createElement('div');
+            loadingEl.className = 'chat-message ai-message loading-indicator';
+            loadingEl.innerHTML = `<div class="loading-dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>`;
+            messagesContainer.appendChild(loadingEl);
+
+            // 3. Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
             try {
-                const response = await fetch(`${API_BASE}/api/generate`, { method: 'POST', headers: { 'Authorization': `Bearer ${auth.getToken()}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, type: 'threejs-scene' }) });
+                const response = await fetch(`${API_BASE}/api/generate`, { 
+                    method: 'POST', 
+                    headers: { 
+                        'Authorization': `Bearer ${auth.getToken()}`, 
+                        'Content-Type': 'application/json' 
+                    }, 
+                    body: JSON.stringify({ prompt, type: 'threejs-scene' }) 
+                });
+                
                 const data = await response.json();
+                
+                // 4. Remove loading indicator
+                loadingEl.remove();
+
                 if (response.ok) {
-                    document.getElementById('aiMessages').innerHTML = data.reasoning;
+                    // 5. Add AI reasoning message
+                    const aiMessageEl = document.createElement('div');
+                    aiMessageEl.className = 'chat-message ai-message';
+                    // Use a <pre> tag to respect formatting in the reasoning
+                    aiMessageEl.innerHTML = `<pre>${data.reasoning || 'No reasoning provided.'}</pre>`;
+                    messagesContainer.appendChild(aiMessageEl);
+
+                    // 6. Populate code editor and switch to preview
                     document.getElementById('codeInput').value = data.code;
                     await loadWorkspace();
                     new bootstrap.Tab('#preview-tab').show();
                     runPreview();
                     showAlert('success', 'Code generated successfully!');
                 } else { 
+                    const errorEl = document.createElement('div');
+                    errorEl.className = 'chat-message ai-message';
+                    errorEl.style.color = 'var(--error-color)';
+                    errorEl.textContent = data.error || 'Generation failed';
+                    messagesContainer.appendChild(errorEl);
                     showAlert('error', data.error || 'Generation failed'); 
                 }
             } catch (error) { 
+                loadingEl.remove();
+                const errorEl = document.createElement('div');
+                errorEl.className = 'chat-message ai-message';
+                errorEl.style.color = 'var(--error-color)';
+                errorEl.textContent = 'Generation error: ' + error.message;
+                messagesContainer.appendChild(errorEl);
                 showAlert('error', 'Generation error: ' + error.message); 
             } finally {
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = '<i class="fas fa-bolt"></i>';
+                // 7. Scroll to bottom again
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
         }
 
