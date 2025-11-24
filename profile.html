@@ -1065,11 +1065,14 @@
     <script src="auth.js"></script>
     <script type="module" src="./common/alert.js"></script>
     <script type="module" src="./common/confirm.js"></script>
+    <script type="module" src="./common/prompt.js"></script>
     <script type="module">
       import { showAlert } from './common/alert.js';
       import { globalConfirm } from './common/confirm.js';
+      import { globalPrompt } from './common/prompt.js';
       window.showAlert = showAlert; // Make showAlert globally accessible
       window.globalConfirm = globalConfirm; // Make globalConfirm globally accessible
+      window.globalPrompt = globalPrompt; // Make globalPrompt globally accessible
     </script>
     <script src="common.js"></script>
     <script>
@@ -1342,34 +1345,40 @@
             document.getElementById('pricingModal').classList.remove('show');
         }
 
-        async function purchaseTokens(plan) {
+        async function purchaseTokens(plan, customAmount = null) {
             try {
-                const returnUrl = `${window.location.origin}/three-ai-studio/payment-success.html`;
-                const cancelUrl = `${window.location.origin}/three-ai-studio/payment-cancel.html`;
+                const returnUrl = `${window.location.origin}/payment-success.html`;
+                const cancelUrl = `${window.location.origin}/payment-cancel.html`;
                 
+                const body = {
+                    plan,
+                    returnUrl,
+                    cancelUrl
+                };
+
+                if (plan === 'custom' && customAmount) {
+                    body.customAmount = customAmount;
+                }
+
                 const response = await fetch(`${API_BASE}/api/payment/create`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${auth.getToken()}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        plan,
-                        returnUrl,
-                        cancelUrl
-                    })
+                    body: JSON.stringify(body)
                 });
 
                 if (response.ok) {
                     const data = await response.json();
                     
-                    // Store session ID and redirect to PayPal
                     localStorage.setItem('paymentSessionId', data.sessionId);
                     window.location.href = data.approvalUrl;
                     
                     closePricingModal();
                 } else {
-                    showAlert('error', 'Failed to create payment');
+                    const data = await response.json();
+                    showAlert('error', `Failed to create payment: ${data.message || 'Server error'}`);
                 }
             } catch (error) {
                 console.error('Error purchasing tokens:', error);
@@ -1475,7 +1484,14 @@
         });
 
         async function changeAvatar() {
-            const newAvatar = prompt('Enter avatar URL:');
+            const newAvatar = await globalPrompt({
+                title: 'Change Avatar',
+                message: 'Enter the URL for your new avatar image.',
+                inputType: 'text',
+                inputPlaceholder: 'https://example.com/avatar.png',
+                confirmText: 'Save'
+            });
+
             if (newAvatar) {
                 try {
                     const response = await fetch(`${API_BASE}/api/profile`, {
@@ -1489,7 +1505,6 @@
 
                     if (response.ok) {
                         showAlert('success', 'Avatar updated successfully');
-                        // Reload profile data to update all avatar displays
                         initializeProfilePage(); 
                     } else {
                         showAlert('error', 'Failed to update avatar');
@@ -1498,6 +1513,10 @@
                     console.error('Error updating avatar:', error);
                     showAlert('error', 'Failed to update avatar: ' + error.message);
                 }
+            } else if (newAvatar === '') {
+                 showAlert('warning', 'Avatar URL cannot be empty.');
+            } else {
+                showAlert('info', 'Avatar change cancelled.');
             }
         }
 
@@ -1506,12 +1525,19 @@
             showAlert('info', 'Detailed usage analytics coming soon!');
         }
 
-        function showCustomAmountModal() {
-            const amount = prompt('Enter custom token amount:');
-            if (amount && !isNaN(amount) && amount > 0) {
-                purchaseTokens('custom', parseInt(amount));
-            } else if (amount) {
-                showAlert('warning', 'Invalid amount entered for custom tokens.');
+        async function showCustomAmountModal() {
+            const amount = await globalPrompt({
+                title: 'Custom Token Amount',
+                message: 'Please enter the number of tokens you wish to purchase.',
+                inputType: 'number',
+                inputPlaceholder: 'e.g., 500',
+                confirmText: 'Purchase'
+            });
+
+            if (amount && !isNaN(amount) && parseInt(amount, 10) > 0) {
+                purchaseTokens('custom', parseInt(amount, 10));
+            } else if (amount !== null) {
+                showAlert('warning', 'Invalid amount entered. Please enter a positive number.');
             } else {
                 showAlert('info', 'Custom token purchase cancelled.');
             }
