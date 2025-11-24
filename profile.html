@@ -273,6 +273,22 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+        .btn-danger:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .btn-danger:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.5;
+        }
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
@@ -1047,9 +1063,12 @@
 
     <script src="auth.js"></script>
     <script type="module" src="./common/alert.js"></script>
+    <script type="module" src="./common/confirm.js"></script>
     <script type="module">
       import { showAlert } from './common/alert.js';
+      import { globalConfirm } from './common/confirm.js';
       window.showAlert = showAlert; // Make showAlert globally accessible
+      window.globalConfirm = globalConfirm; // Make globalConfirm globally accessible
     </script>
     <script src="common.js"></script>
     <script>
@@ -1254,7 +1273,15 @@
         }
 
         async function revokeAPIKey(keyId) {
-            if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
+            const confirmed = await globalConfirm({
+                title: 'Revoke API Key',
+                message: 'Are you sure you want to revoke this API key? This action cannot be undone.',
+                keyword: 'REVOKE',
+                confirmText: 'Revoke Key'
+            });
+
+            if (!confirmed) {
+                showAlert('info', 'API key revocation cancelled.');
                 return;
             }
 
@@ -1504,6 +1531,7 @@
                 }
             } catch (error) {
                 console.error('Error loading recent activity:', error);
+                showAlert('error', 'Error loading recent activity: ' + error.message);
             }
         }
 
@@ -1569,13 +1597,17 @@
             `;
         }
 
-        function showDeleteAccountModal() {
-            if (confirm('Are you absolutely sure? This will permanently delete your account and all data.')) {
-                if (confirm('This action cannot be undone. Type "DELETE" to confirm:')) {
-                    showAlert('info', 'Account deletion would be processed here. In production, this would make an API call.');
-                } else {
-                    showAlert('info', 'Account deletion cancelled.');
-                }
+        async function showDeleteAccountModal() {
+            const confirmed = await globalConfirm({
+                title: 'Delete Account',
+                message: 'This will permanently delete your account and all associated data. This action cannot be undone.',
+                keyword: 'DELETE',
+                confirmText: 'Delete Account'
+            });
+
+            if (confirmed) {
+                showAlert('info', 'Account deletion would be processed here. In production, this would make an API call.');
+                // TODO: Implement actual API call to delete account
             } else {
                 showAlert('info', 'Account deletion cancelled.');
             }
@@ -1642,7 +1674,15 @@
         }
 
         async function deleteFile(fileId) {
-            if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+            const confirmed = await globalConfirm({
+                title: 'Delete File',
+                message: 'Are you sure you want to delete this file? This action cannot be undone.',
+                keyword: 'DELETE',
+                confirmText: 'Delete File'
+            });
+
+            if (!confirmed) {
+                showAlert('info', 'File deletion cancelled.');
                 return;
             }
 
