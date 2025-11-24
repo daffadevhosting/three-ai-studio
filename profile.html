@@ -1606,8 +1606,24 @@
             });
 
             if (confirmed) {
-                showAlert('info', 'Account deletion would be processed here. In production, this would make an API call.');
-                // TODO: Implement actual API call to delete account
+                try {
+                    const response = await fetch(`${API_BASE}/api/profile`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${auth.getToken()}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        showAlert('success', 'Your account has been deleted successfully.');
+                        auth.logout(); // This will clear the token and redirect
+                    } else {
+                        const data = await response.json();
+                        showAlert('error', `Failed to delete account: ${data.message || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    showAlert('error', `An error occurred: ${error.message}`);
+                }
             } else {
                 showAlert('info', 'Account deletion cancelled.');
             }
