@@ -13,6 +13,7 @@
     --info-color: #71e4d1;
     --error-color: #fb7185;
     --warning-color: #f6c76b;
+    --studio-blank: rgb(255 255 255 / 0%);
     --studio-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
 }
 
@@ -197,7 +198,7 @@ a {
 
 .relative-noborder {
     padding: 0.85rem !important;
-    background: rgba(10, 16, 27, 0.62);
+    background: var(--studio-blank) !important;
     border-color: var(--border-color) !important;
 }
 
