@@ -196,32 +196,35 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="studio.css">
 </head>
 <body>
     <div id="globalAlertContainer"></div>
 
     <div id="loginPage" class="auth-container">
         <div class="auth-box">
+            <button class="btn btn-language language-toggle auth-language-toggle" type="button" aria-label="Switch language">ID</button>
             <h3 class="text-center mb-4">Three.js AI Studio</h3>
             <form id="loginForm">
                 <div id="loginMessage" class="text-danger mb-2" style="min-height: 24px;"></div>
-                <div class="mb-3"><label for="loginEmail" class="form-label">Email</label><input type="email" class="form-control" id="loginEmail" required></div>
-                <div class="mb-3"><label for="loginPassword" class="form-label">Password</label><input type="password" class="form-control" id="loginPassword" required></div>
-                <button type="submit" class="btn btn-primary w-100">Sign In</button>
-                <div class="text-center mt-3"><a href="#" onclick="showRegister()">Don't have an account? Sign up</a></div>
+                <div class="mb-3"><label for="loginEmail" class="form-label" data-i18n="email">Email</label><input type="email" class="form-control" id="loginEmail" required></div>
+                <div class="mb-3"><label for="loginPassword" class="form-label" data-i18n="password">Password</label><input type="password" class="form-control" id="loginPassword" required></div>
+                <button type="submit" class="btn btn-primary w-100" data-i18n="signIn">Sign In</button>
+                <div class="text-center mt-3"><a href="#" onclick="showRegister()" data-i18n="signUpPrompt">Don't have an account? Sign up</a></div>
             </form>
         </div>
     </div>
     <div id="registerPage" class="auth-container">
         <div class="auth-box">
-            <h3 class="text-center mb-4">Create Account</h3>
+            <button class="btn btn-language language-toggle auth-language-toggle" type="button" aria-label="Switch language">ID</button>
+            <h3 class="text-center mb-4" data-i18n="createAccount">Create Account</h3>
             <form id="registerForm">
                 <div id="registerMessage" class="text-danger mb-2" style="min-height: 24px;"></div>
-                <div class="mb-3"><label for="registerName" class="form-label">Full Name</label><input type="text" class="form-control" id="registerName" required></div>
-                <div class="mb-3"><label for="registerEmail" class="form-label">Email</label><input type="email" class="form-control" id="registerEmail" required></div>
-                <div class="mb-3"><label for="registerPassword" class="form-label">Password</label><input type="password" class="form-control" id="registerPassword" required></div>
-                <button type="submit" class="btn btn-primary w-100">Create Account</button>
-                <div class="text-center mt-3"><a href="#" onclick="showLogin()">Already have an account? Sign in</a></div>
+                <div class="mb-3"><label for="registerName" class="form-label" data-i18n="fullName">Full Name</label><input type="text" class="form-control" id="registerName" required></div>
+                <div class="mb-3"><label for="registerEmail" class="form-label" data-i18n="email">Email</label><input type="email" class="form-control" id="registerEmail" required></div>
+                <div class="mb-3"><label for="registerPassword" class="form-label" data-i18n="password">Password</label><input type="password" class="form-control" id="registerPassword" required></div>
+                <button type="submit" class="btn btn-primary w-100" data-i18n="createAccount">Create Account</button>
+                <div class="text-center mt-3"><a href="#" onclick="showLogin()" data-i18n="signInPrompt">Already have an account? Sign in</a></div>
             </form>
         </div>
     </div>
@@ -233,40 +236,41 @@
                 <h5 class="m-0 d-none d-sm-block">Three.js AI Studio</h5>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-secondary ai-panel-toggle" onclick="toggleAiPanel()"><i class="fas fa-robot"></i></button>
-                <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#fileExplorer" aria-controls="fileExplorer"><i class="fas fa-folder-open"></i> <span class="d-none d-sm-inline">Files</span></button>
-                <button class="btn btn-secondary" onclick="saveFile()"><i class="fas fa-save"></i> <span class="d-none d-sm-inline">Save</span></button>
+                <button class="btn btn-secondary ai-panel-toggle" onclick="toggleAiPanel()" aria-label="Open AI assistant"><i class="fas fa-robot"></i></button>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#fileExplorer" aria-controls="fileExplorer"><i class="fas fa-folder-open"></i> <span class="d-none d-sm-inline" data-i18n="files">Files</span></button>
+                <button class="btn btn-secondary" onclick="saveFile()"><i class="fas fa-save"></i> <span class="d-none d-sm-inline" data-i18n="save">Save</span></button>
+                <button class="btn btn-language language-toggle" type="button" aria-label="Switch language">ID</button>
             </div>
         </header>
         <main class="main-layout">
             <div class="main-panel">
-                <div class="panel-header"><ul class="nav nav-tabs card-header-tabs" id="main-panel-tabs" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="editor-tab" data-bs-toggle="tab" data-bs-target="#editor-pane" type="button" role="tab">Editor</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-pane" type="button" role="tab" onclick="runPreview()">Preview</button></li></ul></div>
-                <div class="panel-body tab-content p-0"><div class="tab-pane fade show active h-100" id="editor-pane" role="tabpanel"><textarea id="codeInput" placeholder="// Your Three.js code here..."></textarea></div><div class="tab-pane fade h-100" id="preview-pane" role="tabpanel"><div id="preview-toolbar" class="p-2" style="position:absolute; top:0; right:0; z-index:10;"><button id="fixBtn" class="btn btn-sm btn-warning" onclick="fixCodeWithAI()" style="display: none;"><i class="fas fa-wrench"></i> Fix with AI</button><button class="btn btn-sm btn-secondary" onclick="runPreview()"><i class="fas fa-redo"></i></button></div><div id="previewContent" class="h-100"></div></div></div>
+                <div class="panel-header"><ul class="nav nav-tabs card-header-tabs" id="main-panel-tabs" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="editor-tab" data-bs-toggle="tab" data-bs-target="#editor-pane" type="button" role="tab" data-i18n="editor">Editor</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview-pane" type="button" role="tab" onclick="runPreview()" data-i18n="preview">Preview</button></li></ul></div>
+                <div class="panel-body tab-content p-0"><div class="tab-pane fade show active h-100" id="editor-pane" role="tabpanel"><textarea id="codeInput" data-i18n-placeholder="codePlaceholder" placeholder="// Your Three.js code here..."></textarea></div><div class="tab-pane fade h-100" id="preview-pane" role="tabpanel"><div id="preview-toolbar" class="p-2" style="position:absolute; top:0; right:0; z-index:10;"><button id="fixBtn" class="btn btn-sm btn-warning" onclick="fixCodeWithAI()" style="display: none;"><i class="fas fa-wrench"></i> <span data-i18n="fixWithAI">Fix with AI</span></button><button class="btn btn-sm btn-secondary" onclick="runPreview()" aria-label="Refresh preview"><i class="fas fa-redo"></i></button></div><div id="previewContent" class="h-100"></div></div></div>
             </div>
             <div class="ai-panel">
                 <div class="panel-header">
-                    <h6 class="m-0">AI Assistant</h6>
+                    <h6 class="m-0" data-i18n="aiAssistant">AI Assistant</h6>
                     <button class="btn btn-sm btn-secondary ai-panel-toggle-button" onclick="toggleAiPanel()">
                         <i class="fas fa-caret-up"></i>
                     </button>
                 </div>
                 <div class="panel-body" id="aiMessages" style="padding: 1rem;"></div>
-                <div class="relative-noborder p-2 border-top border-secondary"><textarea id="aiInput" class="form-control" placeholder="e.g., Create a rotating cube..." rows="3"></textarea><button class="btn btn-primary send-btn w-100 mt-2" id="generateBtn" onclick="generateCode()"><i class="fas fa-bolt"></i></button></div>
+                <div class="relative-noborder p-2 border-top border-secondary"><textarea id="aiInput" class="form-control" data-i18n-placeholder="promptPlaceholder" placeholder="e.g., Create a rotating cube..." rows="3"></textarea><button class="btn btn-primary send-btn w-100 mt-2" id="generateBtn" onclick="generateCode()" aria-label="Generate scene"><i class="fas fa-bolt"></i></button></div>
             </div>
         </main>
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mainSidebar" aria-labelledby="mainSidebarLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="mainSidebarLabel">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column"><div class="user-info p-3 mb-3 rounded" style="background-color: var(--bg-tertiary);"><div id="userName" class="fw-bold">Loading...</div><span class="badge bg-success-subtle text-success-emphasis rounded-pill">FREE PLAN</span>
-                    <a href="./profile" class="btn btn-sm btn-secondary mt-2 w-100"><i class="fas fa-user me-2"></i>View Profile</a></div><h6>Workspace</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light active" onclick="handleSidebarClick(event, 'My Workspace')"><i class="fas fa-home fa-fw me-2"></i>My Workspace</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Projects')"><i class="fas fa-file-code fa-fw me-2"></i>Projects</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Templates')"><i class="fas fa-shapes fa-fw me-2"></i>Templates</a></div><h6 class="mt-4">Tools</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Optimizer')"><i class="fas fa-bolt fa-fw me-2"></i>Optimizer</a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Analytics')"><i class="fas fa-chart-line fa-fw me-2"></i>Analytics</a></div>                <div class="mt-auto hidden p-3 rounded text-center" style="background-color: var(--bg-tertiary);">
-                    <div>Generations Today</div>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mainSidebar" aria-labelledby="mainSidebarLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="mainSidebarLabel" data-i18n="menu">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column"><div class="user-info p-3 mb-3 rounded" style="background-color: var(--bg-tertiary);"><div id="userName" class="fw-bold">Loading...</div><span class="badge bg-success-subtle text-success-emphasis rounded-pill">FREE PLAN</span>
+                    <a href="./profile" class="btn btn-sm btn-secondary mt-2 w-100"><i class="fas fa-user me-2"></i><span data-i18n="viewProfile">View Profile</span></a></div><h6 data-i18n="workspace">Workspace</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light active" onclick="handleSidebarClick(event, 'My Workspace')"><i class="fas fa-home fa-fw me-2"></i><span data-i18n="myWorkspace">My Workspace</span></a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Projects')"><i class="fas fa-file-code fa-fw me-2"></i><span data-i18n="projects">Projects</span></a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Templates')"><i class="fas fa-shapes fa-fw me-2"></i><span data-i18n="templates">Templates</span></a></div><h6 class="mt-4" data-i18n="tools">Tools</h6><div class="list-group list-group-flush"><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Optimizer')"><i class="fas fa-bolt fa-fw me-2"></i><span data-i18n="optimizer">Optimizer</span></a><a href="#" class="list-group-item list-group-item-action bg-transparent text-light" onclick="handleSidebarClick(event, 'Analytics')"><i class="fas fa-chart-line fa-fw me-2"></i><span data-i18n="analytics">Analytics</span></a></div>                <div class="mt-auto hidden p-3 rounded text-center" style="background-color: var(--bg-tertiary);">
+                    <div data-i18n="generationsToday">Generations Today</div>
                     <div id="generationCount" class="fs-3 fw-bold">0/2</div>
                 </div>
                 <div class="p-3">
                     <button class="btn btn-danger w-100" onclick="logout()">
-                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        <i class="fas fa-sign-out-alt me-2"></i> <span data-i18n="logout">Logout</span>
                     </button>
                 </div>
             </div>
         </div>
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="fileExplorer" aria-labelledby="fileExplorerLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="fileExplorerLabel"></h5><button class="btn btn-sm btn-primary" onclick="createNewFile()"><i class="fas fa-plus"></i> New File</button><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body p-2" id="fileList"></div></div>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="fileExplorer" aria-labelledby="fileExplorerLabel"><div class="offcanvas-header border-bottom border-secondary"><h5 class="offcanvas-title" id="fileExplorerLabel" data-i18n="files">Files</h5><button class="btn btn-sm btn-primary" onclick="createNewFile()"><i class="fas fa-plus"></i> <span data-i18n="newFile">New File</span></button><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body p-2" id="fileList"></div></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -277,6 +281,7 @@
       window.showAlert = showAlert; // Make showAlert globally accessible
     </script>
     <script src="common.js"></script>
+    <script src="i18n.js"></script>
     <script>
         const API_BASE = 'https://three-ai-studio.warpzone.workers.dev';
         let currentFileId = null;

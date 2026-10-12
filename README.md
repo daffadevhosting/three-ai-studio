@@ -14,6 +14,8 @@ The studio is built as a single-page application with a backend powered by Cloud
 - **Live Preview**: Instantly see the results of your code in a live preview tab.
 - **Off-canvas Navigation**: A clean, spacious interface with collapsible sidebars for main navigation and file management.
 - **Cloud-Based Workspace**: User authentication and file storage are handled in the cloud (using Cloudflare R2), so your projects are saved and accessible.
+- **Modern Studio UI**: A responsive dark workspace theme with keyboard-visible focus states and reduced-motion support.
+- **English and Indonesian UI**: Switch languages from the workspace header or the sign-in and registration screens; the selected language is remembered in the browser.
 
 ## Tech Stack
 
@@ -77,7 +79,7 @@ The studio is built as a single-page application with a backend powered by Cloud
 
 ### Frontend Setup
 
-1.  The frontend is a single static file: `frontend/index.html`.
+1.  The frontend is a static application rooted at `frontend/index.html`. The main workspace styles are in `studio.css`, and the workspace language toggle is handled by `i18n.js`.
 2.  For local development, you can open it directly in your browser. However, due to CORS policies, it is recommended to serve it via a simple local HTTP server. A tool like `http-server` can be used:
     ```bash
     # install it if you don't have it

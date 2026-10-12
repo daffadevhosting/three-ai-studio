@@ -1,0 +1,28 @@
+{
+  "root": ".",
+  "writeMode": "safe-write",
+  "build": {
+    "command": "bundle exec jekyll build",
+    "timeout": 120000
+  },
+  "paths": {
+    "components": "_includes/components",
+    "sections": "_includes/sections",
+    "layouts": "_layouts",
+    "includes": "_includes",
+    "scss": "_sass",
+    "scssComponents": "_sass/components",
+    "scssSections": "_sass/sections",
+    "js": "assets/js",
+    "jsComponents": "assets/js/components",
+    "docs": "docs",
+    "docsComponents": "docs/components",
+    "examples": "examples",
+    "examplesComponents": "examples/components",
+    "data": "_data",
+    "posts": "_posts",
+    "sass": "_sass",
+    "assets": "assets",
+    "site": "_site"
+  }
+}
