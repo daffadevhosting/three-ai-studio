@@ -1,4 +1,6 @@
 title: Three.js AI Studio
+baseurl: "/three-ai-studio"
+url: "https://daffadevhosting.github.io"
 markdown: kramdown
 exclude:
   - node_modules
