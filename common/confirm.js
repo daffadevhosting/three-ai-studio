@@ -1,4 +1,6 @@
 export function globalConfirm({ title, message, keyword, confirmText = 'Confirm' }) {
+  const translate = (key, fallback) => window.t?.(key) || fallback;
+
   return new Promise((resolve) => {
     // Remove existing modal if any
     const existingModal = document.getElementById('globalConfirmModal');
@@ -19,12 +21,12 @@ export function globalConfirm({ title, message, keyword, confirmText = 'Confirm'
         <div class="modal-body">
           <p>${message}</p>
           <div class="form-group" style="margin-top: 1rem;">
-            <label class="form-label">Please type <strong>${keyword}</strong> to confirm:</label>
+            <label class="form-label">${translate('typeKeywordToConfirm', 'Please type {keyword} to confirm:').replace('{keyword}', `<strong>${keyword}</strong>`)}</label>
             <input type="text" id="confirmInput" class="form-input" autocomplete="off">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+          <button type="button" class="btn btn-secondary cancel-btn">${translate('cancel', 'Cancel')}</button>
           <button type="button" class="btn btn-danger confirm-btn" disabled>${confirmText}</button>
         </div>
       </div>

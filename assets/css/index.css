@@ -1,0 +1,188 @@
+:root {
+            --bg-primary: #0E1117;
+            --bg-secondary: #161B22;
+            --bg-tertiary: #2D333B;
+            --border-color: #2D333B;
+            --accent-blue: #58A6FF;
+            --accent-purple: #8358e9;
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --default-color: #121624;
+            --success-color: #28a745;
+            --info-color: #58A6FF;
+            --error-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+        body { background-color: var(--bg-primary); color: var(--text-primary); }.hidden{ display: none; }
+        .btn-primary { background-color: var(--accent-blue); border-color: var(--accent-blue); }
+        .btn-secondary { background-color: var(--bg-tertiary); border-color: var(--border-color); }
+        .send-btn {position: absolute;bottom: 18px;right: 18px;max-width: 40px;max-height: 40px;}
+        .relative-noborder {position: relative;border-top: none !important;}
+        .offcanvas, .modal-content { background-color: var(--bg-secondary); color: var(--text-primary); }
+        .main-header { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .main-layout { display: grid; grid-template-columns: 1fr 400px; gap: 1rem; height: calc(100vh - 58px); padding: 1rem; }
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {border-color:none !important;}.card-header-tabs .nav-link.active {border-bottom-color: none !important;}
+        .main-panel, .ai-panel { background-color: var(--bg-secondary); border-radius: 0.5rem; overflow: hidden; display: flex; flex-direction: column; }
+        .panel-header { display: flex; align-items: center; height: 66px; padding: 0.75rem 1rem; background-color: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
+        .panel-body { flex-grow: 1; overflow: auto; position: relative; }
+        #codeInput, #previewContent iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; background-color: transparent; }
+        #codeInput { font-family: 'SF Mono', 'Consolas', 'Menlo', monospace; color: var(--text-primary); padding: 1rem; resize: none; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; cursor: pointer; border-radius: 0.25rem; }
+        .file-item:hover { background-color: var(--bg-tertiary); }
+        .file-item.active { background-color: var(--accent-blue); }
+        .delete-file-btn { color: var(--text-secondary); visibility: hidden; }
+        .file-item:hover .delete-file-btn { visibility: visible; }
+        .delete-file-btn:hover { color: #ff5555; }
+        .auth-container { display: none; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); }
+        .auth-box { background: var(--bg-secondary); padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); width: 400px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        textarea.form-control {min-height: calc(1.5em + .75rem + calc(var(--bs-border-width) * 2));resize: none !important;}.offcanvas-header {display: flex;align-items: center;padding: var(--bs-offcanvas-padding-y) var(--bs-offcanvas-padding-x);justify-content: space-between;}.ai-panel-toggle {display: none;}
+        .ai-panel-toggle-button {
+            display: none;
+        }
+
+        /* Chat Styles */
+        #aiMessages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-message {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: var(--accent-blue);
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+        }
+        .ai-message {
+            background-color: var(--bg-tertiary);
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+        }
+        .ai-message pre { /* For code blocks in reasoning */
+            background: var(--bg-primary);
+            padding: 10px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+        }
+        .loading-dots {
+          display: flex;
+          align-items: center;
+        }
+        .loading-dots .dot {
+          background-color: var(--text-secondary);
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          margin: 0 3px;
+          animation: dot-pulse 1.4s infinite ease-in-out;
+        }
+        .loading-dots .dot:nth-child(2) { animation-delay: -1.2s; }
+        .loading-dots .dot:nth-child(3) { animation-delay: -1.0s; }
+        @keyframes dot-pulse {
+          0%, 80%, 100% { transform: scale(0); } 
+          40% { transform: scale(1.0); }
+        }
+
+        /* Global alert Styles */
+        #globalAlertContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2000;
+            width: 100%;
+            max-width: 400px;
+        }
+        .alert-custom {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .alert-custom.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .alert-custom.hide {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .alert-custom.default {
+            background-color: var(--default-color);
+        }
+        .alert-custom.success {
+            background-color: var(--success-color);
+        }
+        .alert-custom.info {
+            background-color: var(--info-color);
+        }
+        .alert-custom.error {
+            background-color: var(--error-color);
+        }
+        .alert-custom.warning {
+            background-color: var(--warning-color);
+            color: #333; /* Darker text for warning */
+        }
+        .alert-custom .close-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                display: block;
+                padding: 0;
+                height: calc(100vh - 50px);
+            }
+            .main-panel {
+                height: 100%;
+                border-radius: 0;
+            }
+            .ai-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 90vh;
+                z-index: 1000;
+                transform: translateY(calc(100% - 66px)); /* Show only header */
+                transition: transform 0.3s ease-in-out;
+                border-radius: 1rem 1rem 0 0;
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+            }
+            .ai-panel.is-open {
+                transform: translateY(0);
+            }
+            .ai-panel .panel-header {
+                cursor: pointer;
+                justify-content: space-between;
+            }
+            .ai-panel.is-open .ai-panel-toggle-button i {
+                transform: rotate(180deg);
+            }
+            .d-sm-inline, .d-none.d-sm-block {
+                display: none !important;
+            }
+            .ai-panel-toggle { /* This is the button in the main header */
+                display: block;
+            }
+            .ai-panel-toggle-button { /* This is the button in the AI panel header */
+                display: block;
+            }
+        }

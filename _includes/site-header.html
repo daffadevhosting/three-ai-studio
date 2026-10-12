@@ -1,0 +1,28 @@
+<header class="header">
+    <a href="./" class="logo">
+        <i class="fas fa-cube"></i>
+        <span>Three.js AI Studio</span>
+    </a>
+
+    {% if include.show_navigation == 'true' %}
+    <nav class="nav-links">
+        <a href="./" class="nav-link{% if include.active == 'workspace' %} active{% endif %}">
+            <i class="fas fa-code"></i> <span data-i18n="workspace">Workspace</span>
+        </a>
+        <a href="./profile" class="nav-link{% if include.active == 'profile' %} active{% endif %}">
+            <i class="fas fa-user"></i> <span data-i18n="profile">Profile</span>
+        </a>
+        <a href="./billing" class="nav-link{% if include.active == 'billing' %} active{% endif %}">
+            <i class="fas fa-credit-card"></i> <span data-i18n="billing">Billing</span>
+        </a>
+    </nav>
+    {% endif %}
+
+    <div class="user-menu">
+        {% if include.show_language_toggle == 'true' %}
+        <button class="btn btn-secondary language-toggle" type="button" aria-label="Switch language">ID</button>
+        {% endif %}
+        <img id="userAvatar" src="" alt="Avatar" class="avatar" hidden>
+        <span id="userName">Loading...</span>
+    </div>
+</header>

@@ -1,0 +1,9 @@
+title: Three.js AI Studio
+markdown: kramdown
+exclude:
+  - node_modules
+  - vendor
+  - Gemfile
+  - Gemfile.lock
+  - package.json
+  - package-lock.json

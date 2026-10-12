@@ -1,4 +1,6 @@
 export function globalPrompt({ title, message, inputType = 'text', inputPlaceholder = '', confirmText = 'Confirm', initialValue = '' }) {
+  const translate = (key, fallback) => window.t?.(key) || fallback;
+
   return new Promise((resolve) => {
     // Remove existing modal if any
     const existingModal = document.getElementById('globalPromptModal');
@@ -23,7 +25,7 @@ export function globalPrompt({ title, message, inputType = 'text', inputPlacehol
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+          <button type="button" class="btn btn-secondary cancel-btn">${translate('cancel', 'Cancel')}</button>
           <button type="button" class="btn btn-primary confirm-btn">${confirmText}</button>
         </div>
       </div>

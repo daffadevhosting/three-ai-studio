@@ -79,15 +79,16 @@ The studio is built as a single-page application with a backend powered by Cloud
 
 ### Frontend Setup
 
-1.  The frontend is a static application rooted at `frontend/index.html`. The main workspace styles are in `studio.css`, and the workspace language toggle is handled by `i18n.js`.
-2.  For local development, you can open it directly in your browser. However, due to CORS policies, it is recommended to serve it via a simple local HTTP server. A tool like `http-server` can be used:
+1.  Install Ruby and Bundler, then install the frontend dependencies:
     ```bash
-    # install it if you don't have it
-    npm install -g http-server
-    
-    # from the project root, run:
-    http-server frontend
+    cd frontend
+    bundle install
     ```
+2.  Start the Jekyll development server from `frontend/`:
+    ```bash
+    bundle exec jekyll serve
+    ```
+    The site is available at `http://localhost:4000`. Shared document markup lives in `_layouts/` and `_includes/`; page styles are in `assets/css/`.
 3.  **IMPORTANT**: In `frontend/index.html`, find the `API_BASE` constant and ensure its URL points to your running backend (e.g., `http://localhost:8787` for local development or your deployed worker URL for production).
 
 ## How to Use

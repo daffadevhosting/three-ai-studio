@@ -17,3 +17,20 @@ async function loadUserProfile(apiBase, token) {
         return null;
     }
 }
+
+function setUserAvatar(image, avatarUrl) {
+    if (!image) return;
+
+    const source = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
+    if (!source || source === 'null' || source === 'undefined') {
+        image.removeAttribute('src');
+        image.hidden = true;
+        return;
+    }
+
+    image.onerror = () => {
+        image.hidden = true;
+    };
+    image.hidden = false;
+    image.src = source;
+}
