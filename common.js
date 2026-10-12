@@ -34,3 +34,5 @@ function setUserAvatar(image, avatarUrl) {
     image.hidden = false;
     image.src = source;
 }
+
+window.setUserAvatar = setUserAvatar;

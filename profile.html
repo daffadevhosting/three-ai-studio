@@ -390,9 +390,9 @@ stylesheet: /assets/css/profile.css
                 document.getElementById('userName').textContent = data.user.name;
                 document.getElementById('sidebarName').textContent = data.user.name;
                 document.getElementById('sidebarEmail').textContent = data.user.email;
-                setUserAvatar(document.getElementById('userAvatar'), data.user.avatar);
-                setUserAvatar(document.getElementById('sidebarAvatar'), data.user.avatar);
-                setUserAvatar(document.getElementById('settingsAvatar'), data.user.avatar);
+                window.setUserAvatar(document.getElementById('userAvatar'), data.user.avatar);
+                window.setUserAvatar(document.getElementById('sidebarAvatar'), data.user.avatar);
+                window.setUserAvatar(document.getElementById('settingsAvatar'), data.user.avatar);
                 document.getElementById('profileName').value = data.user.name;
                 document.getElementById('profileEmail').value = data.user.email;
                 
