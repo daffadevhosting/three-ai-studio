@@ -358,7 +358,7 @@ stylesheet: /assets/css/profile.css
         </div>
     </div>
 
-    <script src="auth.js"></script>
+    <script src="{{ '/auth.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
     <script type="module" src="./common/alert.js"></script>
     <script type="module" src="./common/confirm.js"></script>
     <script type="module" src="./common/prompt.js"></script>
@@ -370,8 +370,8 @@ stylesheet: /assets/css/profile.css
       window.globalConfirm = globalConfirm; // Make globalConfirm globally accessible
       window.globalPrompt = globalPrompt; // Make globalPrompt globally accessible
     </script>
-    <script src="common.js"></script>
-    <script src="i18n.js"></script>
+    <script src="{{ '/common.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+    <script src="{{ '/i18n.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
     <script>
         const API_BASE = 'https://three-ai-studio.warpzone.workers.dev';
         const auth = new Auth(API_BASE);
